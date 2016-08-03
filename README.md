@@ -12,7 +12,7 @@ A PHP library for interacting with the LXD REST API.
 Via Composer
 
 ``` bash
-$ composer require opensaucesystems/php-lxd
+$ composer require opensaucesystems/lxd
 ```
 
 ## Usage
