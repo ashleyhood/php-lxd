@@ -17,16 +17,7 @@ $ composer require opensaucesystems/php-lxd
 
 ## Usage
 
-``` php
-require "vendor/autoload.php";
-
-$uri  = 'https://lxd.example.com:8443';
-$cert = 'lxd_client.pem';
-$key  = 'lxd_client.key';
-
-$connection = new \Opensaucesystems\Lxd\Connection($uri, $cert, $key, '1.0', false);
-$lxd = new \Opensaucesystems\Lxd\Client($connection);
-```
+See `lxd.php` file for more information.
 
 ## Change log
 
