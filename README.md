@@ -48,11 +48,11 @@ The MIT License (MIT). Please see [License File](LICENSE.md) for more informatio
 
 [ico-version]: https://img.shields.io/packagist/v/opensaucesystems/php-lxd.svg?style=flat-square
 [ico-license]: https://img.shields.io/badge/license-MIT-brightgreen.svg?style=flat-square
-[ico-travis]: https://img.shields.io/travis/opensaucesystems/php-lxd/master.svg?style=flat-square
+[ico-travis]: https://img.shields.io/travis/ashleyhood/php-lxd/master.svg?style=flat-square
 [ico-downloads]: https://img.shields.io/packagist/dt/opensaucesystems/php-lxd.svg?style=flat-square
 
 [link-packagist]: https://packagist.org/packages/opensaucesystems/php-lxd
-[link-travis]: https://travis-ci.org/opensaucesystems/php-lxd
+[link-travis]: https://travis-ci.org/ashleyhood/php-lxd
 [link-downloads]: https://packagist.org/packages/opensaucesystems/php-lxd
 [link-author]: https://opensauce.systems
 [link-contributors]: ../../contributors
