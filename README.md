@@ -17,7 +17,7 @@ $ composer require opensaucesystems/php-lxd
 
 ## Usage
 
-See `lxd.php` file for more information.
+See [`lxd.php`](lxd.php) file for more information.
 
 ## Change log
 
