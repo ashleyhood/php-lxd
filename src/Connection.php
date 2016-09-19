@@ -125,7 +125,7 @@ class Connection
 
     /**
      * Send HTTP request
-     * 
+     *
      * @param object $request Httpful\Request object
      * @return object
      */
@@ -147,7 +147,7 @@ class Connection
 
         if (isset($response->body->type)) {
             if ($response->body->type === 'error' && $response->body->error_code === 404) {
-                throw new NotFoundException('Not found: '.$response->body);
+                throw new NotFoundException('Not found: '.$response->body->error);
             }
 
             if ($response->body->type === 'sync' && $response->body->status_code !== 200) {

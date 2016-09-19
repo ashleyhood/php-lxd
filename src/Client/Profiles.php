@@ -34,14 +34,19 @@ class Profiles
         $endpoint = $this->endpoint.$name;
         $response = $this->client->connection->get($endpoint);
 
-        return $response->body->metadata;
+        $this->name        = $name;
+        $this->description = $response->body->metadata->description;
+        $this->config      = $response->body->metadata->config;
+        $this->devices     = $response->body->metadata->devices;
+
+        return $this;
     }
 
     /**
      * List all profiles on the server
      *
      * This is an alias of the get method with an empty string as the parameter
-     * 
+     *
      * @return array
      */
     public function all()
@@ -69,7 +74,7 @@ class Profiles
 
     /**
      * Create a new profile
-     * 
+     *
      * Example: Create profile
      *  $lxd->profiles->create(
      *      'test-profile',
@@ -82,7 +87,7 @@ class Profiles
      *          ],
      *      ]
      *  );
-     * 
+     *
      * @param  string $name        Name of profile
      * @param  string $description Description of profile
      * @param  array  $config      Configuration of profile
@@ -104,7 +109,7 @@ class Profiles
 
     /**
      * Update profile
-     * 
+     *
      * Example: Update profile
      *  $lxd->profiles->update(
      *      'test-profile',
@@ -117,14 +122,14 @@ class Profiles
      *          ],
      *      ]
      *  );
-     * 
+     *
      * @param  string $name        Name of profile
      * @param  string $description Description of profile
      * @param  array  $config      Configuration of profile
      * @param  array  $devices     Devices of profile
      * @return object
      */
-    public function update($name, $description = '', $config = [], $devices = [])
+    public function update($name, $description = '', $config = null, $devices = null)
     {
         $profile                = [];
         $profile['description'] = $description;
@@ -139,32 +144,28 @@ class Profiles
 
     /**
      * Replace profile
-     * 
+     *
      * Example: Replace profile
-     *  $lxd->profiles->replace(
-     *      'test-profile',
-     *      'My test profile',
-     *      ["limits.memory" => "2GB"],
-     *      [
-     *          "kvm" => [
-     *              "type" => "unix-char",
-     *              "path" => "/dev/kvm"
-     *          ],
-     *      ]
-     *  );
-     * 
+     *  $profile = $lxd->profiles->info('test-profile');
+     *  $profile->description = 'My test profile';
+     *  $profile->config->{'limits.memory'} = '2GB';
+     *  $profile->devices->kvm->type = 'unix-char';
+     *  $profile->devices->kvm->path = '/dev/kvm';
+     *
+     *  $lxd->profiles->replace('test-profile', $profile);
+     *
      * @param  string $name        Name of profile
      * @param  string $description Description of profile
      * @param  array  $config      Configuration of profile
      * @param  array  $devices     Devices of profile
      * @return object
      */
-    public function replace($name, $description = '', $config = [], $devices = [])
+    public function replace($name)
     {
-        $profile                = [];
-        $profile['description'] = $description;
-        $profile['config']      = $config;
-        $profile['devices']     = $devices;
+        // $profile                = [];
+        // $profile['description'] = $description;
+        // $profile['config']      = $config;
+        // $profile['devices']     = $devices;
 
         $endpoint = $this->endpoint.$name;
         $response = $this->client->connection->put($endpoint, $profile);
@@ -174,7 +175,7 @@ class Profiles
 
     /**
      * Rename profile
-     * 
+     *
      * @param  string $name    Name of profile
      * @param  string $newName Name of new profile
      * @return object
