@@ -42,7 +42,7 @@ class Networks
      * List of networks
      *
      * This is an alias of the get method with an empty string as the parameter
-     * 
+     *
      * @return array
      */
     public function all()

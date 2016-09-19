@@ -42,7 +42,7 @@ class Operations
      * List all background operations on the server
      *
      * This is an alias of the get method with an empty string as the parameter
-     * 
+     *
      * @return array
      */
     public function all()
@@ -73,7 +73,7 @@ class Operations
 
     /**
      * Cancel an operation
-     * 
+     *
      * Calling this will change the state to "cancelling"
      * rather than actually removing the entry
      *
@@ -95,7 +95,7 @@ class Operations
 
     /**
      * Wait for an operation to finish
-     * 
+     *
      * @param  string $uuid UUID of background operation
      * @return object
      */
@@ -114,7 +114,8 @@ class Operations
         $response = $this->client->connection->get($endpoint);
 
         if ($response->body->metadata->status_code !== 200) {
-            throw new OperationException('Operation '.$response->body->metadata->status.': '.$response->body->metadata->err);
+            $msg = 'Operation '.$response->body->metadata->status.': '.$response->body->metadata->err;
+            throw new OperationException($msg);
         }
     }
 }

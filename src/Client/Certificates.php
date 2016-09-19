@@ -42,7 +42,7 @@ class Certificates
      * List all trusted certificates on the server
      *
      * This is an alias of the get method with an empty string as the parameter
-     * 
+     *
      * @return array
      */
     public function all()
@@ -74,16 +74,17 @@ class Certificates
 
     /**
      * Add a new trusted certificate to the server
-     * 
+     *
      * Example: Add trusted certificate
      *  $lxd->certificates->add(file_get_contents('/tmp/lxd_client.crt'));
-     * 
+     *
      * Example: Add trusted certificate from untrusted client
      *  $lxd->certificates->add(file_get_contents('/tmp/lxd_client.crt'), 'secret');
-     * 
+     *
      * @param  string $certificate Certificate contents in PEM format
      * @param  string $password    Password for untrusted client
-     * @param  string $name        Name for the certificate. If nothing is provided, the host in the TLS header for the request is used.
+     * @param  string $name        Name for the certificate. If nothing is provided, the host in the TLS header for
+     *                             the request is used.
      * @return string fingerprint of certificate
      */
     public function add($certificate, $password = null, $name = null)
@@ -91,7 +92,7 @@ class Certificates
         // Convert PEM certificate to DER certificate
         $begin = "CERTIFICATE-----";
         $end   = "-----END";
-        $pem_data = substr($certificate, strpos($certificate, $begin)+strlen($begin));   
+        $pem_data = substr($certificate, strpos($certificate, $begin)+strlen($begin));
         $pem_data = substr($pem_data, 0, strpos($pem_data, $end));
         $der = base64_decode($pem_data);
 
@@ -100,17 +101,16 @@ class Certificates
         $options = [];
         $options['type'] = 'client';
         $options['certificate'] = base64_encode($der);
-        
+
         if ($password !== null) {
             $options['password'] = $password;
         }
-        
+
         if ($name !== null) {
             $options['name'] = $name;
         }
 
         $response = $this->client->connection->post($this->client->endpoint, $options);
-        $this->client->syncInfo();
 
         if ($response->body->status_code !== 200) {
             throw new \Exception('Certificate not added: '.$response->body->error);
@@ -136,7 +136,6 @@ class Certificates
 
         $endpoint = $this->endpoint.$fingerprint;
         $response = $this->client->connection->delete($endpoint);
-        $this->client->syncInfo();
 
         if ($response->body->status_code !== 200) {
             throw new \Exception('Certificate not deleted: '.$response->body->error);

@@ -6,5 +6,5 @@ use Exception;
 
 class ClientAuthenticationFailed extends Exception
 {
-    protected $message = 'LXD client certificates are not trusted.';
+    protected $message = 'LXD client certificate is not trusted.';
 }

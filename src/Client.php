@@ -2,100 +2,182 @@
 
 namespace Opensaucesystems\Lxd;
 
-use Opensaucesystems\Lxd\Exception\EndpointException;
+use Opensaucesystems\Lxd\Exception\InvalidEndpointException;
 use Opensaucesystems\Lxd\Exception\ClientConnectionException;
 use Opensaucesystems\Lxd\Exception\ClientAuthenticationFailed;
 use Opensaucesystems\Lxd\Exception\ServerException;
-use Httpful\Exception\ConnectionErrorException;
+use Opensaucesystems\Lxd\HttpClient\Plugin\PathPrepend;
+use Opensaucesystems\Lxd\HttpClient\Plugin\PathTrimEnd;
+use Http\Client\Common\HttpMethodsClient;
+use Http\Client\Common\Plugin;
+use Http\Client\Common\PluginClient;
+use Http\Client\HttpClient;
+use Http\Discovery\HttpClientDiscovery;
+use Http\Discovery\MessageFactoryDiscovery;
+use Http\Discovery\UriFactoryDiscovery;
+use Http\Message\MessageFactory;
 
 class Client
 {
-    private $info;
+    /**
+     * @var string
+     */
+    private $url;
+
+    /**
+     * @var string
+     */
+    private $apiVersion;
+
+    /**
+     * The object that sends HTTP messages
+     *
+     * @var HttpClient
+     */
+    private $httpClient;
+
+    /**
+     * A HTTP client with all our plugins
+     *
+     * @var PluginClient
+     */
+    private $pluginClient;
+
+    /**
+     * @var MessageFactory
+     */
+    private $messageFactory;
+
+    /**
+     * @var Plugin[]
+     */
+    private $plugins = [];
+
+    /**
+     * True if we should create a new Plugin client at next request.
+     *
+     * @var bool
+     */
+    private $httpClientModified = true;
 
     /**
      * Create a new lxd client Instance
      */
-    public function __construct(Connection $con)
+    public function __construct(HttpClient $httpClient = null, $apiVersion = null, $url = null)
     {
-        $this->connection = $con;
-        $this->syncInfo();
+        $this->httpClient     = $httpClient ?: HttpClientDiscovery::find();
+        $this->messageFactory = MessageFactoryDiscovery::find();
+        $this->apiVersion     = $apiVersion ?: '1.0';
+        $this->url            = $url ?: 'https://127.0.0.1:8443';
+
+        $this->addPlugin(new Plugin\ErrorPlugin());
+
+        $this->setUrl($this->url);
     }
 
     /**
-     *  Server configuration and environment information
-     * 
-     * @return object
+     * @return string
      */
-    public function info()
+    public function getUrl()
     {
-        return $this->info;
-    }
-
-    public function syncInfo()
-    {
-        $response = $this->connection->get();
-
-        $this->info = $response->body->metadata;
-
-        return $response->body->metadata;
+        return $this->url;
     }
 
     /**
-     * Does the server trust the client
-     * 
-     * @return bool
+     * Sets the URL of your LXD instance.
+     *
+     * @param string $url URL of the API in the form of https://hostname:port
      */
-    public function trusted()
+    public function setUrl($url)
     {
-        return $this->info->auth === 'trusted' ? true : false;
+        $this->url = $url;
+
+        $this->removePlugin(Plugin\AddHostPlugin::class);
+        $this->removePlugin(PathPrepend::class);
+        $this->removePlugin(PathTrimEnd::class);
+
+        $this->addPlugin(new Plugin\AddHostPlugin(UriFactoryDiscovery::find()->createUri($this->url)));
+        $this->addPlugin(new PathPrepend(sprintf('/%s', $this->getApiVersion())));
+        $this->addPlugin(new PathTrimEnd());
     }
 
     /**
-     * Replaces the server configuration or other properties
-     * 
-     * Example: Change trust password
-     *  $config = $lxd->info()->config;
-     *  $config->{'core.trust_password'} = "my-new-password";
-     *  $lxd->create($config);
-     * 
-     * @param  object $config replaces any existing config with the provided one
-     * @return object
+     * Add a new plugin to the end of the plugin chain.
+     *
+     * @param Plugin $plugin
      */
-    // public function create($config)
-    // {
-    //     $response = $this->connection->put('', $config);
-
-    //     return $response->body->metadata;
-    // }
+    public function addPlugin(Plugin $plugin)
+    {
+        $this->plugins[] = $plugin;
+        $this->httpClientModified = true;
+    }
 
     /**
-     * Updates the server configuration or other properties
-     * 
-     * Example: Change image updates
-     *  $config = $lxd->info()->config;
-     *  $config->{'images.auto_update_interval'} = '24';
-     *  $lxd->update($config);
-     * 
-     * @param  object $config replaces any existing config with the provided one
-     * @return
+     * Remove a plugin by its fully qualified class name (FQCN).
+     *
+     * @param string $fqcn
      */
-    public function update($config)
+    public function removePlugin($fqcn)
     {
-        if (!$this->trusted()) {
-            throw new ClientAuthenticationFailed();
+        foreach ($this->plugins as $idx => $plugin) {
+            if ($plugin instanceof $fqcn) {
+                unset($this->plugins[$idx]);
+                $this->httpClientModified = true;
+            }
         }
+    }
 
-        $data['config'] = $config;
+    /**
+     * @return HttpMethodsClient
+     */
+    public function getHttpClient()
+    {
+        if ($this->httpClientModified) {
+            $this->httpClientModified = false;
 
-        $response = $this->connection->put('', $data);
-
-        if ($response->body->status_code !== 200) {
-            throw new ServerException('Config not updated: '.$response->body->error);
+            $this->pluginClient = new HttpMethodsClient(
+                new PluginClient($this->httpClient, $this->plugins),
+                $this->messageFactory
+            );
         }
+        return $this->pluginClient;
+    }
 
-        $this->syncInfo();
+    /**
+     * @param HttpClient $httpClient
+     */
+    public function setHttpClient(HttpClient $httpClient)
+    {
+        $this->httpClientModified = true;
+        $this->httpClient = $httpClient;
+    }
 
-        return $this->info()->config;
+    /**
+     * @return string
+     */
+    public function getApiVersion()
+    {
+        return $this->apiVersion;
+    }
+
+    /**
+     * Add a cache plugin to cache responses locally.
+     *
+     * @param CacheItemPoolInterface $cache
+     * @param array                  $config
+     */
+    public function addCache(CacheItemPoolInterface $cachePool, array $config = [])
+    {
+        $this->removeCache();
+        $this->addPlugin(new Plugin\CachePlugin($cachePool, $this->streamFactory, $config));
+    }
+
+    /**
+     * Remove the cache plugin
+     */
+    public function removeCache()
+    {
+        $this->removePlugin(Plugin\CachePlugin::class);
     }
 
     public function __get($endpoint)
@@ -107,9 +189,25 @@ class Client
 
             return new $class($this);
         } else {
-            throw new EndpointException(
+            throw new InvalidEndpointException(
                 'Endpoint '.$class.', not implemented.'
             );
+        }
+    }
+
+    /**
+     * Make sure to move the cache plugin to the end of the chain
+     */
+    private function pushBackCachePlugin()
+    {
+        $cachePlugin = null;
+        foreach ($this->plugins as $i => $plugin) {
+            if ($plugin instanceof Plugin\CachePlugin) {
+                $cachePlugin = $plugin;
+                unset($this->plugins[$i]);
+                $this->plugins[] = $cachePlugin;
+                return;
+            }
         }
     }
 }

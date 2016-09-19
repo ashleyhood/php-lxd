@@ -23,32 +23,57 @@ if (!file_exists(__DIR__.'/client.key')) {
     // Generate files
     openssl_x509_export($cert, $certString);
     openssl_pkey_export($privkey, $privkeyString);
-    
+
+    $pemString = $certString.$privkeyString;
+
     // Save files
     $certFile = __DIR__.'/client.crt';
     file_put_contents($certFile, $certString);
     
     $privkeyFile = __DIR__.'/client.key';
     file_put_contents($privkeyFile, $privkeyString);
+    
+    $pemFile = __DIR__.'/client.pem';
+    file_put_contents($pemFile, $pemString);
 }
 
-$uri  = 'https://185.128.58.234:8443';
+$url  = 'https://185.128.58.234:4443';
 $cert = 'client.crt';
 $key  = 'client.key';
+$pem  = __DIR__.'/client.pem';
 
-$con = new \Opensaucesystems\Lxd\Connection($uri, $cert, $key, '1.0', false);
+// $con = new \Opensaucesystems\Lxd\Connection($uri, $cert, $key, '1.0', false);
 // $con = new \Opensaucesystems\Lxd\Connection($uri, '1.0', null, null, false);
 
 // print_r($con->get());
 
-$lxd = new \Opensaucesystems\Lxd\Client($con);
+use GuzzleHttp\Client as GuzzleClient;
+use Http\Adapter\Guzzle6\Client as GuzzleAdapter;
 
-// print_r($lxd->info());
+$config = [
+    'verify' => false,
+    'cert' => [
+        $pem
+    ]
+];
+
+$guzzle = new GuzzleClient($config);
+$adapter = new GuzzleAdapter($guzzle);
+
+$lxd = new \Opensaucesystems\Lxd\Client($adapter);
+// $lxd = new \Opensaucesystems\Lxd\Client($con);
+
+$lxd->setUrl($url);
+
+print_r($lxd->host->info());
+// var_dump($lxd->host->trusted());
 
 //***********************
 // Containers
 //***********************
 // print_r($lxd->containers->all());
+// print_r($lxd->containers->info('cruisebooker'));
+// print_r($lxd->containers->state('cruisebooker'));
 // $container = $lxd->containers->get('test5');
 // print_r($container);
 // print_r($lxd->containers->state('test4'));
@@ -193,7 +218,11 @@ $lxd = new \Opensaucesystems\Lxd\Client($con);
 // Profiles
 //***********************
 // print_r($lxd->profiles->all());
-// print_r($lxd->profiles->info('default'));
+// $profile = $lxd->profiles->info('plan-one');
+// $profile->description = 'Containers have 1GB of RAM, 1 CPU core';
+// $profile->config->{'limits.cpu'} = 1;
+// print_r($profile);
+// print_r($lxd->profiles->delete('external'));
 // $description = 'Ip address is on the same network as host';
 // $config = null;
 // $devices = [
