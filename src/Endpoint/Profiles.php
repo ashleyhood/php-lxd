@@ -1,75 +1,47 @@
 <?php
 
-namespace Opensaucesystems\Lxd\Client;
+namespace Opensaucesystems\Lxd\Endpoint;
 
-use Opensaucesystems\Lxd\Exception\ClientAuthenticationFailed;
-
-class Profiles
+class Profiles extends AbstructEndpoint
 {
-    /**
-     * A LXD Profile
-     */
-    public function __construct($client)
+    protected function getEndpoint()
     {
-        $this->client = $client;
-        $this->endpoint = $this->client->endpoint.'/';
-
-        if (!$this->client->trusted()) {
-            throw new ClientAuthenticationFailed();
-        }
-    }
-
-    /**
-     * Get profile configuration
-     *
-     * Get profile configuration or when the name
-     * parameter is an empty string, return
-     *  an array of all the profiles
-     *
-     * @param  string $name name of profile
-     * @return mixed
-     */
-    public function get($name = '')
-    {
-        $endpoint = $this->endpoint.$name;
-        $response = $this->client->connection->get($endpoint);
-
-        return $response->body->metadata;
+        return '/profiles/';
     }
 
     /**
      * List all profiles on the server
      *
      * This is an alias of the get method with an empty string as the parameter
-     * 
+     *
      * @return array
      */
     public function all()
     {
         $profiles = [];
-        $response = $this->get();
+        $response = $this->get($this->getEndpoint());
 
         foreach ($response as $profile) {
-            $profiles[] = str_replace($this->endpoint, '', strstr($profile, $this->endpoint));
+            $profiles[] = str_replace('/'.$this->client->getApiVersion().$this->getEndpoint(), '', $profile);
         }
 
         return $profiles;
     }
 
     /**
-     * Get information on a profile
+     * Show information on a profile
      *
      * @param  string $name name of profile
      * @return object
      */
-    public function info($name)
+    public function show($name)
     {
-        return $this->get($name);
+        return $this->get($this->getEndpoint().$name);
     }
 
     /**
      * Create a new profile
-     * 
+     *
      * Example: Create profile
      *  $lxd->profiles->create(
      *      'test-profile',
@@ -82,14 +54,14 @@ class Profiles
      *          ],
      *      ]
      *  );
-     * 
+     *
      * @param  string $name        Name of profile
      * @param  string $description Description of profile
      * @param  array  $config      Configuration of profile
      * @param  array  $devices     Devices of profile
      * @return object
      */
-    public function create($name, $description = '', $config = null, $devices = null)
+    public function create($name, $description = '', array $config = null, array $devices = null)
     {
         $profile                = [];
         $profile['name']        = $name;
@@ -97,14 +69,13 @@ class Profiles
         $profile['config']      = $config;
         $profile['devices']     = $devices;
 
-        $response = $this->client->connection->post($this->client->endpoint, $profile);
-
-        return $response->body->metadata;
+        return $this->post($this->getEndpoint(), $profile);
     }
 
     /**
-     * Update profile
-     * 
+     * Update profile.
+     * This will only update supplied profile settings and leave the other settings
+     *
      * Example: Update profile
      *  $lxd->profiles->update(
      *      'test-profile',
@@ -117,29 +88,27 @@ class Profiles
      *          ],
      *      ]
      *  );
-     * 
+     *
      * @param  string $name        Name of profile
      * @param  string $description Description of profile
      * @param  array  $config      Configuration of profile
      * @param  array  $devices     Devices of profile
      * @return object
      */
-    public function update($name, $description = '', $config = [], $devices = [])
+    public function update($name, $description = '', array $config = null, array $devices = null)
     {
         $profile                = [];
         $profile['description'] = $description;
         $profile['config']      = $config;
         $profile['devices']     = $devices;
 
-        $endpoint = $this->endpoint.$name;
-        $response = $this->client->connection->patch($endpoint, $profile);
-
-        return $response->body->metadata;
+        return $this->patch($this->getEndpoint().$name, $profile);
     }
 
     /**
-     * Replace profile
-     * 
+     * Replace profile.
+     * This will replace all the profile settings with the supplied settings
+     *
      * Example: Replace profile
      *  $lxd->profiles->replace(
      *      'test-profile',
@@ -152,29 +121,26 @@ class Profiles
      *          ],
      *      ]
      *  );
-     * 
+     *
      * @param  string $name        Name of profile
      * @param  string $description Description of profile
      * @param  array  $config      Configuration of profile
      * @param  array  $devices     Devices of profile
      * @return object
      */
-    public function replace($name, $description = '', $config = [], $devices = [])
+    public function replace($name, $description = '', array $config = null, array $devices = null)
     {
         $profile                = [];
         $profile['description'] = $description;
         $profile['config']      = $config;
         $profile['devices']     = $devices;
 
-        $endpoint = $this->endpoint.$name;
-        $response = $this->client->connection->put($endpoint, $profile);
-
-        return $response->body->metadata;
+        return $this->put($this->getEndpoint().$name, $profile);
     }
 
     /**
      * Rename profile
-     * 
+     *
      * @param  string $name    Name of profile
      * @param  string $newName Name of new profile
      * @return object
@@ -184,10 +150,7 @@ class Profiles
         $profile                = [];
         $profile['name']        = $newName;
 
-        $endpoint = $this->endpoint.$name;
-        $response = $this->client->connection->post($endpoint, $profile);
-
-        return $response->body->metadata;
+        return $this->post($this->getEndpoint().$name, $profile);
     }
 
     /**
@@ -195,13 +158,8 @@ class Profiles
      *
      * @param  string $name Name of profile
      */
-    public function delete($name)
+    public function remove($name)
     {
-        $endpoint = $this->endpoint.$name;
-        $response = $this->client->connection->delete($endpoint);
-
-        if ($response->body->status_code !== 200) {
-            throw new \Exception('Profile not deleted: '.$response->body->error);
-        }
+        return $this->delete($this->getEndpoint().$name);
     }
 }
