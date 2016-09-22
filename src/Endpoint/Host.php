@@ -1,13 +1,17 @@
 <?php
 
-namespace Opensaucesystems\Lxd\Client;
+namespace Opensaucesystems\Lxd\Endpoint;
 
 use Opensaucesystems\Lxd\Client;
 use Opensaucesystems\Lxd\HttpClient\Message\ResponseMediator;
-use Opensaucesystems\Lxd\Exception\ClientAuthenticationFailed;
 
 class Host extends AbstructEndpoint
 {
+    protected function getEndpoint()
+    {
+        return '';
+    }
+
     /**
      * A LXD Host
      */
@@ -21,9 +25,9 @@ class Host extends AbstructEndpoint
      *
      * @return object
      */
-    public function info()
+    public function show()
     {
-        return $this->get('');
+        return $this->get($this->getEndpoint());
     }
 
     /**
@@ -33,7 +37,7 @@ class Host extends AbstructEndpoint
      */
     public function trusted()
     {
-        $info = $this->info();
+        $info = $this->show();
 
         return $info['auth'] === 'trusted' ? true : false;
     }
@@ -42,7 +46,7 @@ class Host extends AbstructEndpoint
      * Updates the server configuration or other properties
      *
      * Example: Change trust password
-     *  $info = $lxd->info();
+     *  $info = $lxd->show();
      *  $info['config']['core.trust_password'] = "my-new-password";
      *  $lxd->update($config);
      *
@@ -51,21 +55,17 @@ class Host extends AbstructEndpoint
      */
     // public function update($config)
     // {
-    //     if (!$this->trusted()) {
-    //         throw new ClientAuthenticationFailed();
-    //     }
-
     //     $data['config'] = $config;
-    //     $response = $this->patch('', $config);
+    //     $response = $this->patch($this->getEndpoint(), $config);
 
-    //     return $this->info();
+    //     return $this->show();
     // }
 
     /**
      * Replaces the server configuration or other properties
      *
      * Example: Change image updates
-     *  $info = $lxd->info();
+     *  $info = $lxd->show();
      *  $info['config']['images.auto_update_interval'] = '24';
      *  $lxd->update($info['config']);
      *
@@ -74,13 +74,9 @@ class Host extends AbstructEndpoint
      */
     public function replace($config)
     {
-        if (!$this->trusted()) {
-            throw new ClientAuthenticationFailed();
-        }
-
         $data['config'] = $config;
-        $response = $this->put('', $data);
+        $response = $this->put($this->getEndpoint(), $data);
 
-        return $this->info();
+        return $this->show();
     }
 }

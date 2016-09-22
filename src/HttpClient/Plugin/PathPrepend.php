@@ -1,4 +1,5 @@
 <?php
+
 namespace Opensaucesystems\Lxd\HttpClient\Plugin;
 
 use Http\Client\Common\Plugin;

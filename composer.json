@@ -42,7 +42,7 @@
     },
     "autoload-dev": {
         "psr-4": {
-            "Opensaucesystems\\Lxd\\Test\\": "tests"
+            "Opensaucesystems\\Lxd\\Tests\\": "tests"
         }
     },
     "scripts": {
