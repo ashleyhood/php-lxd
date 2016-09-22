@@ -1,42 +1,16 @@
 <?php
 
-namespace Opensaucesystems\Lxd\Client;
+namespace Opensaucesystems\Lxd\Endpoint;
 
+use Opensaucesystems\Lxd\Client;
+use Opensaucesystems\Lxd\HttpClient\Message\ResponseMediator;
 use Opensaucesystems\Lxd\Exception\SourceImageException;
-use Opensaucesystems\Lxd\Exception\ClientAuthenticationFailed;
 
 class Containers extends AbstructEndpoint
 {
-    /**
-     * A LXD Container
-     */
-    public function __construct($client)
+    protected function getEndpoint()
     {
-        $this->client   = $client;
-        $this->endpoint = $this->client->endpoint.'/';
-
-        if (!$this->client->trusted()) {
-            throw new ClientAuthenticationFailed();
-        }
-
-        parent::__construct($client, __CLASS__);
-    }
-
-    /**
-     * Get information on a container
-     *
-     * Get information on a container or when the name parameter is an
-     * empty string, return an array of all the containers
-     *
-     * @param  string $name Name of container
-     * @return mixed
-     */
-    public function get($name = '')
-    {
-        $endpoint = $this->endpoint.$name;
-        $response = $this->client->connection->get($endpoint);
-
-        return $response->body->metadata;
+        return '/containers/';
     }
 
     /**
@@ -49,10 +23,10 @@ class Containers extends AbstructEndpoint
     public function all()
     {
         $containers = [];
-        $response = $this->get();
+        $response = $this->get($this->getEndpoint());
 
         foreach ($response as $container) {
-            $containers[] = str_replace($this->endpoint, '', strstr($container, $this->endpoint));
+            $containers[] = str_replace('/'.$this->client->getApiVersion().$this->getEndpoint(), '', $container);
         }
 
         return $containers;
@@ -64,13 +38,9 @@ class Containers extends AbstructEndpoint
      * @param string $name Name of container
      * @return object
      */
-    public function info($name)
+    public function show($name)
     {
-        if (empty($name)) {
-            throw new \Exception('Missing container name');
-        }
-
-        return $this->get($name);
+        return $this->get($this->getEndpoint().$name);
     }
 
     /**
@@ -81,10 +51,7 @@ class Containers extends AbstructEndpoint
      */
     public function state($name)
     {
-        $endpoint = $this->endpoint.$name.'/state';
-        $response = $this->client->connection->get($endpoint);
-
-        return $response->body->metadata;
+        return $this->get($this->getEndpoint().$name.'/state');
     }
 
     /**
@@ -105,14 +72,13 @@ class Containers extends AbstructEndpoint
         $opts['force'] = $force;
         $opts['stateful'] = $stateful;
 
-        $endpoint = $this->endpoint.$name.'/state';
-        $response = $this->client->connection->put($endpoint, $opts);
+        $response = $this->put($this->getEndpoint().$name.'/state', $opts);
 
         if ($wait) {
-            $response = $this->client->operations->wait($response->body->metadata->id);
+            $response = $this->client->operations->wait($response['id']);
         }
 
-        return $response->body->metadata;
+        return $response;
     }
 
     /**
@@ -294,22 +260,32 @@ class Containers extends AbstructEndpoint
             $opts = $this->getLocalImageOptions($name, $source, $options);
         }
 
-        $response = $this->client->connection->post($this->client->endpoint, $opts);
+        $response = $this->post($this->getEndpoint(), $opts);
 
         if ($wait) {
-            $response = $this->client->operations->wait($response->body->metadata->id);
+            $response = $this->client->operations->wait($response['id']);
         }
 
-        return $response->body->metadata;
+        return $response;
     }
 
     /**
      * Create a copy of an existing local container
      *
-     * @param string $name Name of existing container
-     * @param string $copyName Name of copied container
-     * @param array $options Options for copied container
-     * @param bool $wait Wait for operation to finish
+     * Example: Copy container
+     *  $lxd->containers->copy('existing', 'new');
+     *
+     * Example: Copy container and apply profiles to it
+     *  $lxd->containers->copy(
+     *    'existing',
+     *    'new',
+     *    ['profiles' => ['default', 'public']
+     *  );
+     *
+     * @param  string $name Name of existing container
+     * @param  string $copyName Name of copied container
+     * @param  array  $options Options for copied container
+     * @param  bool   $wait Wait for operation to finish
      * @return object
      */
     public function copy($name, $copyName, array $options = [], $wait = false)
@@ -319,17 +295,17 @@ class Containers extends AbstructEndpoint
         $opts['source']['type'] = 'copy';
         $opts['source']['source'] = $name;
 
-        $response = $this->client->connection->post($this->client->endpoint, $opts);
+        $response = $this->post($this->getEndpoint(), $opts);
 
         if ($wait) {
-            $response = $this->client->operations->wait($response->body->metadata->id);
+            $response = $this->client->operations->wait($response['id']);
         }
 
-        return $response->body->metadata;
+        return $response;
     }
 
     /**
-     * Update the configuration of a container
+     * Replace the configuration of a container
      *
      * Configuration is overwritten, not merged.  Accordingly, clients should
      * first call the info method to obtain the current configuration of a
@@ -341,7 +317,7 @@ class Containers extends AbstructEndpoint
      * <code>name</code>, etc.) through this call.
      *
      * Example: Change container to be ephemeral (i.e. it will be deleted when stopped)
-     *  $container = $lxd->containers->info('test');
+     *  $container = $lxd->containers->show('test');
      *  $container->ephemeral = true;
      *  $lxd->containers->update('test', $container);
      *
@@ -350,16 +326,15 @@ class Containers extends AbstructEndpoint
      * @param bool $wait Wait for operation to finish
      * @return object
      */
-    public function update($name, $container, $wait = false)
+    public function replace($name, $container, $wait = false)
     {
-        $endpoint = $this->endpoint.$name;
-        $response = $this->client->connection->put($endpoint, $container);
+        $response = $this->put($this->getEndpoint().$name, $container);
 
         if ($wait) {
-            $response = $this->client->operations->wait($response->body->metadata->id);
+            $response = $this->client->operations->wait($response['id']);
         }
 
-        return $response->body->metadata;
+        return $response;
     }
 
     /**
@@ -373,14 +348,13 @@ class Containers extends AbstructEndpoint
     public function rename($name, $newName, $wait = false)
     {
         $opts['name'] = $newName;
-        $endpoint = $this->endpoint.$name;
-        $response = $this->client->connection->post($endpoint, $opts);
+        $response = $this->post($this->getEndpoint().$name, $opts);
 
         if ($wait) {
-            $response = $this->client->operations->wait($response->body->metadata->id);
+            $response = $this->client->operations->wait($response['id']);
         }
 
-        return $response->body->metadata;
+        return $response;
     }
 
     /**
@@ -390,16 +364,15 @@ class Containers extends AbstructEndpoint
      * @param bool   $wait Wait for operation to finish
      * @return array
      */
-    public function delete($name, $wait = false)
+    public function remove($name, $wait = false)
     {
-        $endpoint = $this->endpoint.$name;
-        $response = $this->client->connection->delete($endpoint);
+        $response = $this->delete($this->getEndpoint().$name);
 
         if ($wait) {
-            $response = $this->client->operations->wait($response->body->metadata->id);
+            $response = $this->client->operations->wait($response['id']);
         }
 
-        return $response->body->metadata;
+        return $response;
     }
 
     /**
@@ -426,14 +399,26 @@ class Containers extends AbstructEndpoint
         $opts['wait-for-websocket'] = false;
         $opts['interactive'] = false;
 
-        $endpoint = $this->endpoint.$name.'/exec';
-        $response = $this->client->connection->post($endpoint, $opts);
+        $response = $this->post($this->getEndpoint().$name.'/exec', $opts);
 
         if ($wait) {
-            $response = $this->client->operations->wait($response->body->metadata->id);
+            $response = $this->client->operations->wait($response['id']);
         }
 
-        return $response->body->metadata;
+        return $response;
+    }
+
+    public function __get($endpoint)
+    {
+        $class = __NAMESPACE__.'\\Containers\\'.ucfirst($endpoint);
+
+        if (class_exists($class)) {
+            return new $class($this->client);
+        } else {
+            throw new InvalidEndpointException(
+                'Endpoint '.$class.', not implemented.'
+            );
+        }
     }
 
     /**
