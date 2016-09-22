@@ -1,7 +1,6 @@
 <?php
 namespace Opensaucesystems\Lxd\HttpClient\Message;
 
-use Github\Exception\ApiLimitExceedException;
 use Psr\Http\Message\ResponseInterface;
 
 class ResponseMediator
@@ -19,6 +18,10 @@ class ResponseMediator
             $content = json_decode($body, true);
 
             if (json_last_error() === JSON_ERROR_NONE) {
+                if ($response->getStatusCode() >= 100 && $response->getStatusCode() <= 111) {
+                    return $content;
+                }
+
                 return $content['metadata'];
             }
         }

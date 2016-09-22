@@ -1,6 +1,6 @@
 <?php
 
-namespace Opensaucesystems\Lxd\Client;
+namespace Opensaucesystems\Lxd\Endpoint;
 
 use Opensaucesystems\Lxd\Client;
 use Opensaucesystems\Lxd\HttpClient\Message\ResponseMediator;
@@ -9,11 +9,12 @@ abstract class AbstructEndpoint
 {
     protected $client;
 
-    public function __construct(Client $client, $class)
+    public function __construct(Client $client)
     {
         $this->client = $client;
-        $this->class = $class;
     }
+
+    abstract protected function getEndpoint();
 
     /**
      * Send a GET request with query parameters.
@@ -108,17 +109,6 @@ abstract class AbstructEndpoint
         );
 
         return ResponseMediator::getContent($response);
-    }
-
-    public function __get($endpoint)
-    {
-        $class = $this->class.'\\'.ucfirst($endpoint);
-
-        if (class_exists($class)) {
-            return new $class($this->client);
-        } else {
-            throw new \Exception('Endpoint '.$class.', not implemented.');
-        }
     }
 
     /**

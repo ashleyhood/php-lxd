@@ -1,13 +1,14 @@
 <?php
 
-namespace Opensaucesystems\Lxd\Client\Containers;
+namespace Opensaucesystems\Lxd\Endpoint\Containers;
 
-class Files
+use Opensaucesystems\Lxd\Endpoint\AbstructEndpoint;
+
+class Files extends AbstructEndpoint
 {
-    public function __construct($client)
+    protected function getEndpoint()
     {
-        $this->client   = $client;
-        $this->endpoint = $this->client->endpoint.'/';
+        return '/containers/files/';
     }
 
     /**
@@ -19,10 +20,7 @@ class Files
      */
     public function read($name, $filepath)
     {
-        $endpoint = $this->endpoint.$name.'/files?path='.$filepath;
-        $response = $this->client->connection->get($endpoint);
-
-        return $response;
+        return $this->get($this->getEndpoint().$name.'/files?path='.$filepath);
     }
 
     /**
@@ -50,9 +48,6 @@ class Files
             $headers['X-LXD-mode'] = $mode;
         }
 
-        $endpoint = $this->endpoint.$name.'/files?path='.$filepath;
-        $response = $this->client->connection->post($endpoint, $data, $headers);
-
-        return $response->body->metadata;
+        return $this->post($this->getEndpoint().$name.'/files?path='.$filepath, $data, $headers);
     }
 }

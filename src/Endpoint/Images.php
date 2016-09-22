@@ -1,42 +1,14 @@
 <?php
 
-namespace Opensaucesystems\Lxd\Client;
+namespace Opensaucesystems\Lxd\Endpoint;
 
-use Opensaucesystems\Lxd\Exception\SourceImageException;
+use Opensaucesystems\Lxd\Exception\InvalidEndpointException;
 
 class Images extends AbstructEndpoint
 {
-    /**
-     * A LXD image
-     */
-    public function __construct($client)
+    protected function getEndpoint()
     {
-        $this->client   = $client;
-        $this->endpoint = $this->client->endpoint.'/';
-
-        parent::__construct($client, __CLASS__);
-    }
-
-    /**
-     * Get information on an image
-     *
-     * Get information on an image or when the fingerprint parameter is an
-     * empty string, return an array of all the images
-     *
-     * @param  string $fingerprint Fingerprint of image
-     * @return mixed
-     */
-    public function get($fingerprint = '', $secret = '')
-    {
-        $endpoint = $this->endpoint.$fingerprint;
-
-        if (!empty($secret)) {
-            $endpoint .= '?secret=#'.$secret;
-        }
-
-        $response = $this->client->connection->get($endpoint);
-
-        return $response->body->metadata;
+        return '/images/';
     }
 
     /**
@@ -49,10 +21,10 @@ class Images extends AbstructEndpoint
     public function all()
     {
         $images = [];
-        $response = $this->get();
+        $response = $this->get($this->getEndpoint());
 
         foreach ($response as $image) {
-            $images[] = str_replace($this->endpoint, '', strstr($image, $this->endpoint));
+            $images[] = str_replace('/'.$this->client->getApiVersion().$this->getEndpoint(), '', $image);
         }
 
         return $images;
@@ -65,13 +37,15 @@ class Images extends AbstructEndpoint
      * @param  string $secret Secret to access private image by untrusted client
      * @return object
      */
-    public function info($fingerprint, $secret = null)
+    public function show($fingerprint, $secret = null)
     {
-        if (empty($fingerprint)) {
-            throw new \Exception('Missing image fingerprint');
+        $endpoint = $this->getEndpoint().$fingerprint;
+
+        if (!empty($secret)) {
+            $endpoint .= '?secret='.$secret;
         }
 
-        return $this->get($fingerprint);
+        return $this->get($endpoint);
     }
 
     /**
@@ -79,9 +53,9 @@ class Images extends AbstructEndpoint
      *
      * Ways to create an image:
      * @todo Standard http file upload
-     * # Source image dictionary (transfers a remote image)
-     * # Source image dictionary (makes an image out of a local image)
-     * @todo Remote image URL dictionary (downloads a remote image)
+     * # Source image (transfers a remote image)
+     * # Source container (makes an image out of a local container)
+     * @todo Remote image URL (downloads a remote image)
      *
      * @param  array $options Options to create the image
      * @param  bool  $wait Wait for operation to finish
@@ -89,13 +63,13 @@ class Images extends AbstructEndpoint
      */
     public function create(array $options, $headers = [], $wait = false)
     {
-        $response = $this->client->connection->post($this->client->endpoint, $options, $headers);
+        $response = $this->post($this->getEndpoint(), $options, $headers);
 
         if ($wait) {
-            $response = $this->client->operations->wait($response->body->metadata->id);
+            $response = $this->client->operations->wait($response['id']);
         }
 
-        return $response->body->metadata;
+        return $response;
     }
 
     /**
@@ -105,7 +79,6 @@ class Images extends AbstructEndpoint
      *  $lxd->images->createFromRemote(
      *      "https://images.linuxcontainers.org:8443",
      *      [
-     *          "server" => "https://images.linuximages.org:8443",
      *          "alias"  => "ubuntu/xenial/amd64",
      *      ]
      *  );
@@ -114,7 +87,6 @@ class Images extends AbstructEndpoint
      *  $lxd->images->createFromRemote(
      *      "https://images.linuxcontainers.org:8443",
      *      [
-     *          "server"      => "https://images.linuximages.org:8443",
      *          "fingerprint" => "65df07147e458f356db90fa66d6f907a164739b554a40224984317eee729e92a",
      *      ]
      *  );
@@ -123,7 +95,6 @@ class Images extends AbstructEndpoint
      *  $lxd->images->createFromRemote(
      *      "https://images.linuxcontainers.org:8443",
      *      [
-     *          "server"      => "https://images.linuximages.org:8443",
      *          "alias"  => "ubuntu/xenial/amd64",
      *      ],
      *      true
@@ -144,18 +115,18 @@ class Images extends AbstructEndpoint
         }
 
         $only = [
-            'server',
             'secret',
             'protocol',
             'certificate',
         ];
         $remoteOptions = array_intersect_key($options, array_flip((array) $only));
 
-        $opts                   = $this->getOptions($options);
-        $opts['auto_update']    = $autoUpdate;
-        $opts['source']         = array_merge($source, $remoteOptions);
-        $opts['source']['type'] = 'image';
-        $opts['source']['mode'] = 'pull';
+        $opts                     = $this->getOptions($options);
+        $opts['auto_update']      = $autoUpdate;
+        $opts['source']           = array_merge($source, $remoteOptions);
+        $opts['source']['type']   = 'image';
+        $opts['source']['mode']   = 'pull';
+        $opts['source']['server'] = $server;
 
         return $this->create($opts, [], $wait);
     }
@@ -238,7 +209,7 @@ class Images extends AbstructEndpoint
     }
 
     /**
-     * Update the configuration of a image
+     * Replace the configuration of a image
      *
      * Configuration is overwritten, not merged.  Accordingly, clients should
      * first call the info method to obtain the current configuration of a
@@ -249,26 +220,25 @@ class Images extends AbstructEndpoint
      * <code>status</code>, <code>status_code</code>, <code>stateful</code>,
      * <code>name</code>, etc.) through this call.
      *
-     * Example: Change image to be ephemeral (i.e. it will be deleted when stopped)
-     *  $image = $lxd->images->info('65df07147e458f356db90fa66d6f907a164739b554a40224984317eee729e92a');
-     *  $image->public = true;
-     *  $lxd->images->update('test', $image);
+     * Example: Change image to be public
+     *  $image = $lxd->images->show('65df07147e458f356db90fa66d6f907a164739b554a40224984317eee729e92a');
+     *  $image['public'] = true;
+     *  $lxd->images->replace('test', $image);
      *
      * @param  string $fingerprint  Fingerprint of image
-     * @param  object $image        Image to update
+     * @param  array  $options      Options to replace
      * @param  bool   $wait         Wait for operation to finish
-     * @return object
+     * @return array
      */
-    public function update($fingerprint, $image, $wait = false)
+    public function replace($fingerprint, $options, $wait = false)
     {
-        $endpoint = $this->endpoint.$fingerprint;
-        $response = $this->client->connection->put($endpoint, $image);
+        $response = $this->put($this->getEndpoint().$fingerprint, $options);
 
         if ($wait) {
-            $response = $this->client->operations->wait($response->body->metadata->id);
+            $response = $this->client->operations->wait($response['id']);
         }
 
-        return $response->body->metadata;
+        return $response;
     }
 
     /**
@@ -278,16 +248,28 @@ class Images extends AbstructEndpoint
      * @param  bool   $wait        Wait for operation to finish
      * @return array
      */
-    public function delete($fingerprint, $wait = false)
+    public function remove($fingerprint, $wait = false)
     {
-        $endpoint = $this->endpoint.$fingerprint;
-        $response = $this->client->connection->delete($endpoint);
+        $response = $this->delete($this->getEndpoint().$fingerprint);
 
         if ($wait) {
-            $response = $this->client->operations->wait($response->body->metadata->id);
+            $response = $this->client->operations->wait($response['id']);
         }
 
-        return $response->body->metadata;
+        return $response;
+    }
+
+    public function __get($endpoint)
+    {
+        $class = __NAMESPACE__.'\\Images\\'.ucfirst($endpoint);
+
+        if (class_exists($class)) {
+            return new $class($this->client);
+        } else {
+            throw new InvalidEndpointException(
+                'Endpoint '.$class.', not implemented.'
+            );
+        }
     }
 
     /**
@@ -304,7 +286,7 @@ class Images extends AbstructEndpoint
             }
         }
 
-        return [];
+        throw new \Exception('Alias or Fingerprint must be set');
     }
 
     /**
@@ -320,6 +302,7 @@ class Images extends AbstructEndpoint
             'filename',
             'public',
             'properties',
+            'auto_update',
         ];
         $opts = array_intersect_key($options, array_flip((array) $only));
 

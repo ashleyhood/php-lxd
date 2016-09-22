@@ -1,8 +1,9 @@
 <?php
 
-namespace Opensaucesystems\Lxd;
+namespace Opensaucesystems\Lxd\Tests;
 
 use Mockery;
+use Opensaucesystems\Lxd\Client;
 
 class ClientTest extends \PHPUnit_Framework_TestCase
 {

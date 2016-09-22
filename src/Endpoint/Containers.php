@@ -1,27 +1,16 @@
 <?php
 
-namespace Opensaucesystems\Lxd\Client;
+namespace Opensaucesystems\Lxd\Endpoint;
 
 use Opensaucesystems\Lxd\Client;
 use Opensaucesystems\Lxd\HttpClient\Message\ResponseMediator;
 use Opensaucesystems\Lxd\Exception\SourceImageException;
-use Opensaucesystems\Lxd\Exception\ClientAuthenticationFailed;
 
 class Containers extends AbstructEndpoint
 {
-    /**
-     * A LXD Container
-     */
-    public function __construct(Client $client)
+    protected function getEndpoint()
     {
-        $this->client   = $client;
-        $this->endpoint = sprintf('/%s/', $this->client->endpoint);
-
-        if (!$this->client->host->trusted()) {
-            throw new ClientAuthenticationFailed();
-        }
-
-        parent::__construct($client, __CLASS__);
+        return '/containers/';
     }
 
     /**
@@ -34,10 +23,10 @@ class Containers extends AbstructEndpoint
     public function all()
     {
         $containers = [];
-        $response = $this->get($this->endpoint);
+        $response = $this->get($this->getEndpoint());
 
         foreach ($response as $container) {
-            $containers[] = str_replace($this->endpoint, '', strstr($container, $this->endpoint));
+            $containers[] = str_replace('/'.$this->client->getApiVersion().$this->getEndpoint(), '', $container);
         }
 
         return $containers;
@@ -49,9 +38,9 @@ class Containers extends AbstructEndpoint
      * @param string $name Name of container
      * @return object
      */
-    public function info($name)
+    public function show($name)
     {
-        return $this->get($this->endpoint.$name);
+        return $this->get($this->getEndpoint().$name);
     }
 
     /**
@@ -62,9 +51,7 @@ class Containers extends AbstructEndpoint
      */
     public function state($name)
     {
-        $endpoint = $this->endpoint.$name.'/state';
-
-        return $this->get($endpoint);
+        return $this->get($this->getEndpoint().$name.'/state');
     }
 
     /**
@@ -85,8 +72,7 @@ class Containers extends AbstructEndpoint
         $opts['force'] = $force;
         $opts['stateful'] = $stateful;
 
-        $endpoint = $this->endpoint.$name.'/state';
-        $response = $this->put($endpoint, $opts);
+        $response = $this->put($this->getEndpoint().$name.'/state', $opts);
 
         if ($wait) {
             $response = $this->client->operations->wait($response['id']);
@@ -274,7 +260,7 @@ class Containers extends AbstructEndpoint
             $opts = $this->getLocalImageOptions($name, $source, $options);
         }
 
-        $response = $this->post($this->client->endpoint, $opts);
+        $response = $this->post($this->getEndpoint(), $opts);
 
         if ($wait) {
             $response = $this->client->operations->wait($response['id']);
@@ -309,7 +295,7 @@ class Containers extends AbstructEndpoint
         $opts['source']['type'] = 'copy';
         $opts['source']['source'] = $name;
 
-        $response = $this->post($this->client->endpoint, $opts);
+        $response = $this->post($this->getEndpoint(), $opts);
 
         if ($wait) {
             $response = $this->client->operations->wait($response['id']);
@@ -319,7 +305,7 @@ class Containers extends AbstructEndpoint
     }
 
     /**
-     * Update the configuration of a container
+     * Replace the configuration of a container
      *
      * Configuration is overwritten, not merged.  Accordingly, clients should
      * first call the info method to obtain the current configuration of a
@@ -331,7 +317,7 @@ class Containers extends AbstructEndpoint
      * <code>name</code>, etc.) through this call.
      *
      * Example: Change container to be ephemeral (i.e. it will be deleted when stopped)
-     *  $container = $lxd->containers->info('test');
+     *  $container = $lxd->containers->show('test');
      *  $container->ephemeral = true;
      *  $lxd->containers->update('test', $container);
      *
@@ -340,10 +326,9 @@ class Containers extends AbstructEndpoint
      * @param bool $wait Wait for operation to finish
      * @return object
      */
-    public function update($name, $container, $wait = false)
+    public function replace($name, $container, $wait = false)
     {
-        $endpoint = $this->endpoint.$name;
-        $response = $this->put($endpoint, $container);
+        $response = $this->put($this->getEndpoint().$name, $container);
 
         if ($wait) {
             $response = $this->client->operations->wait($response['id']);
@@ -363,8 +348,7 @@ class Containers extends AbstructEndpoint
     public function rename($name, $newName, $wait = false)
     {
         $opts['name'] = $newName;
-        $endpoint = $this->endpoint.$name;
-        $response = $this->post($endpoint, $opts);
+        $response = $this->post($this->getEndpoint().$name, $opts);
 
         if ($wait) {
             $response = $this->client->operations->wait($response['id']);
@@ -380,10 +364,9 @@ class Containers extends AbstructEndpoint
      * @param bool   $wait Wait for operation to finish
      * @return array
      */
-    public function delete($name, $wait = false)
+    public function remove($name, $wait = false)
     {
-        $endpoint = $this->endpoint.$name;
-        $response = $this->delete($endpoint);
+        $response = $this->delete($this->getEndpoint().$name);
 
         if ($wait) {
             $response = $this->client->operations->wait($response['id']);
@@ -416,14 +399,26 @@ class Containers extends AbstructEndpoint
         $opts['wait-for-websocket'] = false;
         $opts['interactive'] = false;
 
-        $endpoint = $this->endpoint.$name.'/exec';
-        $response = $this->post($endpoint, $opts);
+        $response = $this->post($this->getEndpoint().$name.'/exec', $opts);
 
         if ($wait) {
             $response = $this->client->operations->wait($response['id']);
         }
 
         return $response;
+    }
+
+    public function __get($endpoint)
+    {
+        $class = __NAMESPACE__.'\\Containers\\'.ucfirst($endpoint);
+
+        if (class_exists($class)) {
+            return new $class($this->client);
+        } else {
+            throw new InvalidEndpointException(
+                'Endpoint '.$class.', not implemented.'
+            );
+        }
     }
 
     /**

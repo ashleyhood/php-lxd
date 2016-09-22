@@ -4,10 +4,10 @@ namespace Opensaucesystems\Lxd;
 
 use Opensaucesystems\Lxd\Exception\InvalidEndpointException;
 use Opensaucesystems\Lxd\Exception\ClientConnectionException;
-use Opensaucesystems\Lxd\Exception\ClientAuthenticationFailed;
 use Opensaucesystems\Lxd\Exception\ServerException;
 use Opensaucesystems\Lxd\HttpClient\Plugin\PathPrepend;
 use Opensaucesystems\Lxd\HttpClient\Plugin\PathTrimEnd;
+use Opensaucesystems\Lxd\HttpClient\Plugin\LxdExceptionThower;
 use Http\Client\Common\HttpMethodsClient;
 use Http\Client\Common\Plugin;
 use Http\Client\Common\PluginClient;
@@ -70,7 +70,7 @@ class Client
         $this->apiVersion     = $apiVersion ?: '1.0';
         $this->url            = $url ?: 'https://127.0.0.1:8443';
 
-        $this->addPlugin(new Plugin\ErrorPlugin());
+        $this->addPlugin(new LxdExceptionThower());
 
         $this->setUrl($this->url);
     }
@@ -182,11 +182,9 @@ class Client
 
     public function __get($endpoint)
     {
-        $class = __NAMESPACE__.'\\Client\\'.ucfirst($endpoint);
+        $class = __NAMESPACE__.'\\Endpoint\\'.ucfirst($endpoint);
 
         if (class_exists($class)) {
-            $this->endpoint = $endpoint;
-
             return new $class($this);
         } else {
             throw new InvalidEndpointException(
