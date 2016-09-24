@@ -55,7 +55,8 @@ use Http\Adapter\Guzzle6\Client as GuzzleAdapter;
 $config = [
     'verify' => false,
     'cert' => [
-        $pem
+        $pem,
+        ''
     ]
 ];
 
