@@ -54,6 +54,6 @@ class NetworksTest extends TestCase
             ->with('/networks/lxdbr0')
             ->will($this->returnValue($expectedValue));
 
-        $this->assertEquals($expectedValue, $endpoint->show('lxdbr0'));
+        $this->assertEquals($expectedValue, $endpoint->info('lxdbr0'));
     }
 }

@@ -22,7 +22,11 @@ class Snapshots extends AbstructEndpoint
         $snapshots = [];
 
         foreach ($this->get($this->getEndpoint().$name.'/snapshots/') as $snapshot) {
-            $snapshots[] = str_replace('/'.$this->client->getApiVersion().'/containers/'.$name.'/snapshots/', '', $snapshot);
+            $snapshots[] = str_replace(
+                '/'.$this->client->getApiVersion().'/containers/'.$name.'/snapshots/',
+                '',
+                $snapshot
+            );
         }
 
         return $snapshots;

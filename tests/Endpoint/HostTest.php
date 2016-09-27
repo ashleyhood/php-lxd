@@ -29,7 +29,7 @@ class HostTest extends TestCase
             ->with('')
             ->will($this->returnValue($expectedValue));
 
-        $this->assertEquals($expectedValue, $endpoint->show());
+        $this->assertEquals($expectedValue, $endpoint->info());
     }
 
     /**
@@ -77,7 +77,7 @@ class HostTest extends TestCase
             ->with('')
             ->will($this->returnValue($expectedValue));
 
-        $this->assertEquals($expectedValue, $endpoint->show());
+        $this->assertEquals($expectedValue, $endpoint->info());
     }
 
     /**

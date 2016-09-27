@@ -60,7 +60,7 @@ class ProfilesTest extends TestCase
             ->with('/profiles/test')
             ->will($this->returnValue($expectedValue));
 
-        $this->assertEquals($expectedValue, $endpoint->show('test'));
+        $this->assertEquals($expectedValue, $endpoint->info('test'));
     }
 
     /**

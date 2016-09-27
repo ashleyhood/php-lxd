@@ -65,7 +65,7 @@ class OperationsTest extends TestCase
             ->with('/operations/c0fc0d0d-a997-462b-842b-f8bd0df82507')
             ->will($this->returnValue($expectedValue));
 
-        $this->assertEquals($expectedValue, $endpoint->show('c0fc0d0d-a997-462b-842b-f8bd0df82507'));
+        $this->assertEquals($expectedValue, $endpoint->info('c0fc0d0d-a997-462b-842b-f8bd0df82507'));
     }
 
     /**

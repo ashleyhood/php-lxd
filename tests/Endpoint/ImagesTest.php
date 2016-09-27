@@ -78,7 +78,7 @@ class ImagesTest extends TestCase
 
         $this->assertEquals(
             $expectedValue,
-            $endpoint->show('54c8caac1f61901ed86c68f24af5f5d3672bdc62c71d04f06df3a59e95684473')
+            $endpoint->info('54c8caac1f61901ed86c68f24af5f5d3672bdc62c71d04f06df3a59e95684473')
         );
     }
 
@@ -128,7 +128,7 @@ class ImagesTest extends TestCase
 
         $this->assertEquals(
             $expectedValue,
-            $endpoint->show('54c8caac1f61901ed86c68f24af5f5d3672bdc62c71d04f06df3a59e95684473', 'SECRET')
+            $endpoint->info('54c8caac1f61901ed86c68f24af5f5d3672bdc62c71d04f06df3a59e95684473', 'SECRET')
         );
     }
 
