@@ -21,9 +21,8 @@ class Images extends AbstructEndpoint
     public function all()
     {
         $images = [];
-        $response = $this->get($this->getEndpoint());
 
-        foreach ($response as $image) {
+        foreach ($this->get($this->getEndpoint()) as $image) {
             $images[] = str_replace('/'.$this->client->getApiVersion().$this->getEndpoint(), '', $image);
         }
 
@@ -37,7 +36,7 @@ class Images extends AbstructEndpoint
      * @param  string $secret Secret to access private image by untrusted client
      * @return object
      */
-    public function show($fingerprint, $secret = null)
+    public function info($fingerprint, $secret = null)
     {
         $endpoint = $this->getEndpoint().$fingerprint;
 
@@ -221,7 +220,7 @@ class Images extends AbstructEndpoint
      * <code>name</code>, etc.) through this call.
      *
      * Example: Change image to be public
-     *  $image = $lxd->images->show('65df07147e458f356db90fa66d6f907a164739b554a40224984317eee729e92a');
+     *  $image = $lxd->images->info('65df07147e458f356db90fa66d6f907a164739b554a40224984317eee729e92a');
      *  $image['public'] = true;
      *  $lxd->images->replace('test', $image);
      *

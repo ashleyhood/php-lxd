@@ -19,9 +19,8 @@ class Aliases extends AbstructEndpoint
     public function all()
     {
         $aliases = [];
-        $response = $this->get($this->getEndpoint());
 
-        foreach ($response as $alias) {
+        foreach ($this->get($this->getEndpoint()) as $alias) {
             $aliases[] = str_replace('/'.$this->client->getApiVersion().$this->getEndpoint(), '', $alias);
         }
 
@@ -34,7 +33,7 @@ class Aliases extends AbstructEndpoint
      * @param string $name      Name of container
      * @return object
      */
-    public function show($name)
+    public function info($name)
     {
         return $this->get($this->getEndpoint().$name);
     }

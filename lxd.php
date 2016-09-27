@@ -66,16 +66,16 @@ $lxd = new \Opensaucesystems\Lxd\Client($adapter);
 
 $lxd->setUrl($url);
 
-print_r($lxd->host->show());
+print_r($lxd->host->info());
 // var_dump($lxd->host->trusted());
 
 //***********************
 // Containers
 //***********************
 // print_r($lxd->containers->all());
-// print_r($lxd->containers->show('test4'));
+// print_r($lxd->containers->info('test4'));
 // print_r($lxd->containers->state('test4'));
-// $container = $lxd->containers->show('test4');
+// $container = $lxd->containers->info('test4');
 // print_r($container);
 // print_r($lxd->containers->state('test4'));
 
@@ -124,11 +124,11 @@ print_r($lxd->host->show());
 // print_r($lxd->containers->all());
 
 // Update
-// $container = $lxd->containers->get('test5');
+// $container = $lxd->containers->info('test5');
 // print_r($container);
 // $container->ephemeral = true;
 // print_r($lxd->containers->update('test5', $container, true));
-// print_r($lxd->containers->show('test5'));
+// print_r($lxd->containers->info('test5'));
 
 // Rename
 // print_r($lxd->containers->rename('test6', 'test6-rename', true));
@@ -137,7 +137,7 @@ print_r($lxd->host->show());
 // print_r($lxd->containers->remove('test6-rename', true));
 
 // Change state
-// print_r($lxd->containers->show('test4'));
+// print_r($lxd->containers->info('test4'));
 // print_r($lxd->containers->start('che-oss-place'));
 // print_r($lxd->containers->start('test4', 30, false, false, true));
 // print_r($lxd->containers->restart('test4'));
@@ -148,7 +148,7 @@ print_r($lxd->host->show());
 // print_r($lxd->containers->freeze('test4', 30, true, false, true));
 // print_r($lxd->containers->unfreeze('test4'));
 // print_r($lxd->containers->unfreeze('test4', 30, true, false, true));
-// print_r($lxd->containers->show('che-oss-place'));
+// print_r($lxd->containers->info('che-oss-place'));
 
 // Execute command
 // print_r($lxd->containers->execute('test4', "echo 'hello world'", [], true));
@@ -160,7 +160,7 @@ print_r($lxd->host->show());
 
 // Snapshots
 // print_r($lxd->containers->snapshots->all('test4'));
-// print_r($lxd->containers->snapshots->show('test4', 'snapshot1'));
+// print_r($lxd->containers->snapshots->info('test4', 'snapshot1'));
 // print_r($lxd->containers->snapshots->create('test4', 'snapshot1'));
 // print_r($lxd->containers->snapshots->create('test4', 'snapshot2', false, true));
 // print_r($lxd->containers->snapshots->create('test4', 'snapshot3', true, true));
@@ -175,7 +175,7 @@ print_r($lxd->host->show());
 // Images
 //***********************
 // print_r($lxd->images->all());
-// print_r($lxd->images->show('c97972fc6529e9cb8831c52fa623b776b176665871bf5f30f39d6da2f2d23900'));
+// print_r($lxd->images->info('c97972fc6529e9cb8831c52fa623b776b176665871bf5f30f39d6da2f2d23900'));
 // print_r($lxd->images->createFromRemote(
 //     "https://images.linuxcontainers.org:8443",
 //     [
@@ -197,8 +197,8 @@ print_r($lxd->host->show());
 // print_r($lxd->images->aliases->rename('ubuntu-1604-amd64', 'ubuntu/xenial/amd64'));
 // $lxd->images->aliases->replace('ubuntu/xenial/amd64', 'c97972fc6529e9cb8831c52fa623b776b176665871bf5f30f39d6da2f2d23900', 'Ubuntu 16.04 Xenial Xerus x64');
 // print_r($lxd->images->aliases->remove('ubuntu/xenial/amd64'));
-// print_r($lxd->images->aliases->show('ubuntu/xenial/amd64'));
-// print_r($lxd->images->aliases->show('ubuntu-1604-amd64'));
+// print_r($lxd->images->aliases->info('ubuntu/xenial/amd64'));
+// print_r($lxd->images->aliases->info('ubuntu-1604-amd64'));
 // print_r($lxd->images->aliases->all());
 
 //***********************
@@ -211,11 +211,11 @@ print_r($lxd->host->show());
 //     var_dump($fingerprint);
 // }
 
-// print_r($lxd->certificates->show($fingerprint));
+// print_r($lxd->certificates->info($fingerprint));
 // $lxd->certificates->remove('2a6c24f521c2ceffe658c9fc729023ff48bc050d37ad4f1d8a1bb7709a5ecf7b');
 // $lxd->certificates->remove($fingerprint);
 
-// $config = $lxd->show()->config;
+// $config = $lxd->info()->config;
 // $config->{'images.auto_update_interval'} = '24';
 // $config->{'core.trust_password'} = 'Super secret password';
 
@@ -225,13 +225,13 @@ print_r($lxd->host->show());
 // Networks
 //***********************
 // print_r($lxd->networks->all());
-// print_r($lxd->networks->show('lxdbr0'));
+// print_r($lxd->networks->info('lxdbr0'));
 
 //***********************
 // Profiles
 //***********************
 // print_r($lxd->profiles->all());
-// $profile = $lxd->profiles->show('plan-one');
+// $profile = $lxd->profiles->info('plan-one');
 // $profile->description = 'Containers have 1GB of RAM, 1 CPU core';
 // $profile->config->{'limits.cpu'} = 1;
 // print_r($profile);
@@ -254,4 +254,4 @@ print_r($lxd->host->show());
 //***********************
 // print_r($lxd->operations->all());
 // $uuid = $lxd->operations->all();
-// print_r($lxd->operations->show($uuid[0][0]));
+// print_r($lxd->operations->info($uuid[0][0]));

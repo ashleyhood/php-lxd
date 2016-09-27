@@ -21,10 +21,9 @@ class Operations extends AbstructEndpoint
     public function all()
     {
         $operations = [];
-        $response = $this->get($this->getEndpoint());
 
-        foreach ($response as $operation) {
-            $operations[] = str_replace('/'.$this->client->getApiVersion().$this->getEndpoint(), '', $operation);
+        foreach ($this->get($this->getEndpoint()) as $key => $operation) {
+            $operations[$key] = str_replace('/'.$this->client->getApiVersion().$this->getEndpoint(), '', $operation);
         }
 
         return $operations;
@@ -36,7 +35,7 @@ class Operations extends AbstructEndpoint
      * @param  string $uuid UUID of background operation
      * @return array
      */
-    public function show($uuid)
+    public function info($uuid)
     {
         return $this->get($this->getEndpoint().$uuid);
     }

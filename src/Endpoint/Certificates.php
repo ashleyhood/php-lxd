@@ -19,10 +19,8 @@ class Certificates extends AbstructEndpoint
     public function all()
     {
         $certificates = [];
-        
-        $response = $this->get($this->getEndpoint());
 
-        foreach ($response as $certificate) {
+        foreach ($this->get($this->getEndpoint()) as $certificate) {
             $certificates[] = str_replace('/'.$this->client->getApiVersion().$this->getEndpoint(), '', $certificate);
         }
 
@@ -35,7 +33,7 @@ class Certificates extends AbstructEndpoint
      * @param  string $fingerprint Fingerprint of certificate
      * @return object
      */
-    public function show($fingerprint)
+    public function info($fingerprint)
     {
         return $this->get($this->getEndpoint().$fingerprint);
     }
