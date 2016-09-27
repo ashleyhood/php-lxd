@@ -25,7 +25,7 @@ class Host extends AbstructEndpoint
      *
      * @return object
      */
-    public function show()
+    public function info()
     {
         return $this->get($this->getEndpoint());
     }
@@ -37,7 +37,7 @@ class Host extends AbstructEndpoint
      */
     public function trusted()
     {
-        $info = $this->show();
+        $info = $this->info();
 
         return $info['auth'] === 'trusted' ? true : false;
     }
@@ -46,7 +46,7 @@ class Host extends AbstructEndpoint
      * Updates the server configuration or other properties
      *
      * Example: Change trust password
-     *  $info = $lxd->show();
+     *  $info = $lxd->info();
      *  $info['config']['core.trust_password'] = "my-new-password";
      *  $lxd->update($config);
      *
@@ -58,14 +58,14 @@ class Host extends AbstructEndpoint
     //     $data['config'] = $config;
     //     $response = $this->patch($this->getEndpoint(), $config);
 
-    //     return $this->show();
+    //     return $this->info();
     // }
 
     /**
      * Replaces the server configuration or other properties
      *
      * Example: Change image updates
-     *  $info = $lxd->show();
+     *  $info = $lxd->info();
      *  $info['config']['images.auto_update_interval'] = '24';
      *  $lxd->update($info['config']);
      *
@@ -77,6 +77,6 @@ class Host extends AbstructEndpoint
         $data['config'] = $config;
         $response = $this->put($this->getEndpoint(), $data);
 
-        return $this->show();
+        return $this->info();
     }
 }

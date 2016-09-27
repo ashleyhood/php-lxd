@@ -23,9 +23,8 @@ class Containers extends AbstructEndpoint
     public function all()
     {
         $containers = [];
-        $response = $this->get($this->getEndpoint());
 
-        foreach ($response as $container) {
+        foreach ($this->get($this->getEndpoint()) as $container) {
             $containers[] = str_replace('/'.$this->client->getApiVersion().$this->getEndpoint(), '', $container);
         }
 

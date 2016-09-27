@@ -19,9 +19,8 @@ class Networks extends AbstructEndpoint
     public function all()
     {
         $networks = [];
-        $response = $this->get($this->getEndpoint());
 
-        foreach ($response as $network) {
+        foreach ($this->get($this->getEndpoint()) as $network) {
             $networks[] = str_replace('/'.$this->client->getApiVersion().$this->getEndpoint(), '', $network);
         }
 
@@ -34,7 +33,7 @@ class Networks extends AbstructEndpoint
      * @param  string $name name of network
      * @return object
      */
-    public function show($name)
+    public function info($name)
     {
         return $this->get($this->getEndpoint().$name);
     }

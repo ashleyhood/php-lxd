@@ -19,9 +19,8 @@ class Profiles extends AbstructEndpoint
     public function all()
     {
         $profiles = [];
-        $response = $this->get($this->getEndpoint());
 
-        foreach ($response as $profile) {
+        foreach ($this->get($this->getEndpoint()) as $profile) {
             $profiles[] = str_replace('/'.$this->client->getApiVersion().$this->getEndpoint(), '', $profile);
         }
 
@@ -34,7 +33,7 @@ class Profiles extends AbstructEndpoint
      * @param  string $name name of profile
      * @return object
      */
-    public function show($name)
+    public function info($name)
     {
         return $this->get($this->getEndpoint().$name);
     }

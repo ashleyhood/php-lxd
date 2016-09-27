@@ -20,10 +20,9 @@ class Snapshots extends AbstructEndpoint
     public function all($name)
     {
         $snapshots = [];
-        $response  = $this->get($this->getEndpoint().$name.'/snapshots/');
 
-        foreach ($response as $snapshot) {
-            $snapshots[] = str_replace('/'.$this->client->getApiVersion().'/containers/', '', $snapshot);
+        foreach ($this->get($this->getEndpoint().$name.'/snapshots/') as $snapshot) {
+            $snapshots[] = str_replace('/'.$this->client->getApiVersion().'/containers/'.$name.'/snapshots/', '', $snapshot);
         }
 
         return $snapshots;
@@ -36,7 +35,7 @@ class Snapshots extends AbstructEndpoint
      * @param string $snapshots Name of snapshots
      * @return object
      */
-    public function show($name, $snapshot)
+    public function info($name, $snapshot)
     {
         return $this->get($this->getEndpoint().$name.'/snapshots/'.$snapshot);
     }
