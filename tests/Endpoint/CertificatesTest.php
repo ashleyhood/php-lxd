@@ -53,7 +53,7 @@ class CertificatesTest extends TestCase
             ->with('/certificates/fingerprint')
             ->will($this->returnValue($expectedValue));
 
-        $this->assertEquals($expectedValue, $endpoint->show('fingerprint'));
+        $this->assertEquals($expectedValue, $endpoint->info('fingerprint'));
     }
 
     /**
