@@ -37,7 +37,7 @@ class Containers extends AbstructEndpoint
      * @param string $name Name of container
      * @return object
      */
-    public function show($name)
+    public function info($name)
     {
         return $this->get($this->getEndpoint().$name);
     }
