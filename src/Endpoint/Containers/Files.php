@@ -8,7 +8,7 @@ class Files extends AbstructEndpoint
 {
     protected function getEndpoint()
     {
-        return '/containers/files/';
+        return '/containers/';
     }
 
     /**
