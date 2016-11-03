@@ -5,7 +5,11 @@ namespace Opensaucesystems\Lxd\HttpClient\Plugin;
 use Http\Client\Common\Plugin;
 use Psr\Http\Message\RequestInterface;
 use Psr\Http\Message\ResponseInterface;
+use Http\Client\Exception\HttpException;
+use Opensaucesystems\Lxd\Exception\OperationException;
 use Opensaucesystems\Lxd\Exception\AuthenticationFailedException;
+use Opensaucesystems\Lxd\Exception\NotFoundException;
+use Opensaucesystems\Lxd\Exception\ConflictException;
 
 /**
  * Handle LXD errors
@@ -23,12 +27,26 @@ class LxdExceptionThower implements Plugin
         return $promise->then(function (ResponseInterface $response) use ($request) {
             return $response;
         }, function (\Exception $e) use ($request) {
-            $response = $e->getResponse();
+            if (get_class($e) === HttpException::class) {
+                $response = $e->getResponse();
 
-            if (403 === $response->getStatusCode()) {
-                throw new AuthenticationFailedException($request, $response, $e);
+                if (401 === $response->getStatusCode()) {
+                    throw new OperationException($request, $response, $e);
+                }
+
+                if (403 === $response->getStatusCode()) {
+                    throw new AuthenticationFailedException($request, $response, $e);
+                }
+                
+                if (404 === $response->getStatusCode()) {
+                    throw new NotFoundException($request, $response, $e);
+                }
+                
+                if (409 === $response->getStatusCode()) {
+                    throw new ConflictException($request, $response, $e);
+                }
             }
-            
+
             throw $e;
         });
     }

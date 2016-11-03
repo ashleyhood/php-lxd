@@ -379,11 +379,12 @@ class Containers extends AbstructEndpoint
      *
      * @param string       $name        Name of container
      * @param array|string $command     Command and arguments
+     * @param bool         $record      Whether to store stdout and stderr
      * @param array        $environment An associative array, the key will be the environment variable name
      * @param bool         $wait        Wait for operation to finish
      * @return object
      */
-    public function execute($name, $command, array $environment = [], $wait = false)
+    public function execute($name, $command, $record = false, array $environment = [], $wait = false)
     {
         if (is_string($command)) {
             $command = $this->split($command);
@@ -395,6 +396,10 @@ class Containers extends AbstructEndpoint
             $opts['environment'] = $environment;
         }
 
+        if ($record === true) {
+            $opts['record-output'] = true;
+        }
+
         $opts['wait-for-websocket'] = false;
         $opts['interactive'] = false;
 
@@ -402,6 +407,21 @@ class Containers extends AbstructEndpoint
 
         if ($wait) {
             $response = $this->client->operations->wait($response['id']);
+            
+            $logs = [];
+            $output = $response['metadata']['output'];
+            $return = $response['metadata']['return'];
+            unset($response);
+
+            foreach ($output as $log) {
+                $response['output'][] = str_replace(
+                    '/'.$this->client->getApiVersion().'/containers/'.$name.'/logs/',
+                    '',
+                    $log
+                );
+            }
+    
+            $response['return'] = $return;
         }
 
         return $response;

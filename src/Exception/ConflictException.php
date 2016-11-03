@@ -6,9 +6,9 @@ use Http\Client\Exception\HttpException;
 use Psr\Http\Message\RequestInterface;
 use Psr\Http\Message\ResponseInterface;
 
-class NotFoundException extends HttpException
+class ConflictException extends HttpException
 {
-    protected $message = 'Not found.';
+    protected $message = 'Resource already exists.';
     
     public function __construct(RequestInterface $request, ResponseInterface $response, \Exception $previous = null)
     {
