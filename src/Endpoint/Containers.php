@@ -251,7 +251,10 @@ class Containers extends AbstructEndpoint
             throw new SourceImageException();
         }
 
-        if (!empty($options['empty'])) {
+        if (!empty($options['source'])) {
+            $opts = $this->getOptions($name, $options);
+            $opts['source'] = $source;
+        } elseif ($options['empty']) {
             $opts = $this->getEmptyOptions($name, $options);
         } elseif (!empty($options['server'])) {
             $opts = $this->getRemoteImageOptions($name, $source, $options);
@@ -301,6 +304,57 @@ class Containers extends AbstructEndpoint
         }
 
         return $response;
+    }
+
+    /**
+     * Migrate a container
+     *
+     * If the container is running, it either must be shut down
+     * first or criu must be installed on the source and destination
+     * machines.
+     *
+     * Example: Migrate container
+     *  $lxd2 = new \Opensaucesystems\Lxd\Client($adapter, '1.0', 'https://lxd2.example.com:8443');
+     *  $lxd->containers->migrate($lxd2, 'test');
+     *
+     * @param  object $destination lxd client Instance to destination lxd server
+     * @param  string $name Name of existing container
+     * @param  bool   $wait Wait for operation to finish
+     * @return object
+     */
+    public function migrate(\Opensaucesystems\Lxd\Client $destination, $name, $wait = false)
+    {
+        return $destination->containers->create($name, $this->initMigration($name), $wait);
+    }
+
+    /**
+     * Initiate the migration of a container
+     *
+     * @param  string $name Name of existing container
+     * @return array
+     */
+    public function initMigration($name)
+    {
+        $migration = $this->post($this->getEndpoint().$name, ['migration' => true]);
+        $host = $this->client->host->info();
+        $container = $this->info($name);
+        $url = $this->client->getUrl().'/'.$this->client->getApiVersion().'/operations/'.$migration['id'];
+
+        return [
+            'name'         => $name,
+            'architecture' => $container['architecture'],
+            'config'       => $container['config'],
+            'devices'      => $container['devices'],
+            'epehemeral'   => $container['ephemeral'],
+            'profiles'     => $container['profiles'],
+            'source'       => [
+                'type'        => 'migration',
+                'operation'   => $url,
+                'mode'        => 'pull',
+                'certificate' => $host['environment']['certificate'],
+                'secrets'     => $migration['metadata'],
+            ]
+        ];
     }
 
     /**
@@ -407,7 +461,7 @@ class Containers extends AbstructEndpoint
 
         if ($wait) {
             $response = $this->client->operations->wait($response['id']);
-            
+
             $logs = [];
             $output = $response['metadata']['output'];
             $return = $response['metadata']['return'];
@@ -420,7 +474,7 @@ class Containers extends AbstructEndpoint
                     $log
                 );
             }
-    
+
             $response['return'] = $return;
         }
 
@@ -448,6 +502,28 @@ class Containers extends AbstructEndpoint
      */
     private function getSource($options)
     {
+        if (isset($options['source'])) {
+            $only = [
+                'type',
+                'mode',
+                'source',
+                'server',
+                'operation',
+                'protocol',
+                'base-image',
+                'certificate',
+                'secret',
+                'secrets',
+                'alias',
+                'fingerprint',
+                'properties',
+                'live',
+            ];
+            $opts = array_intersect_key($options, array_flip((array) $only));
+
+            return $opts['source'];
+        }
+
         foreach (['alias', 'fingerprint', 'properties'] as $attr) {
             if (!empty($options[$attr])) {
                 return [$attr => $options[$attr]];
