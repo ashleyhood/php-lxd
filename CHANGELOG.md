@@ -4,10 +4,11 @@ All Notable changes to `php-lxd` will be documented in this file.
 
 Updates should follow the [Keep a CHANGELOG](http://keepachangelog.com/) principles.
 
-## NEXT - YYYY-MM-DD
+## [0.6.0] - 2017-01-23
 
 ### Added
-- Nothing
+- Documentation
+- container migration
 
 ### Deprecated
 - Nothing

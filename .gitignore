@@ -1,6 +1,5 @@
 build
 composer.lock
-docs
 vendor
 client.pem
 client.crt
