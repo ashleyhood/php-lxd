@@ -43,7 +43,7 @@ abstract class AbstructEndpoint
      * @param array  $data           POST data to be JSON encoded.
      * @param array  $requestHeaders Request headers.
      */
-    protected function post($path, array $data = [], array $parameters = [], array $requestHeaders = [])
+    protected function post($path, $data = [], array $parameters = [], array $requestHeaders = [])
     {
         $response = $this->client->getHttpClient()->post(
             $this->buildPath($path, $parameters),
@@ -120,7 +120,11 @@ abstract class AbstructEndpoint
      */
     protected function createJsonBody(array $data)
     {
-        return (count($data) === 0) ? null : json_encode($data, empty($data) ? JSON_FORCE_OBJECT : 0);
+        if (is_array($data)) {
+            return (count($data) === 0) ? null : json_encode($data, empty($data) ? JSON_FORCE_OBJECT : 0);
+        } else {
+            return $data;
+        }
     }
 
     /**
