@@ -140,7 +140,38 @@ $lxd->containers->remove('container-name');
 
 #### Update container
 
-> TODO
+Replace containers configuration.<br />
+To avoid lost of configuration first of all current config can be read, changed and then set again.
+```
+<?php
+// Set container ephemeral (delete when stopped)
+$container = $lxd->containers->show('test');
+$container->ephemeral = true;
+$lxd->containers->replace('container-name', $container);
+```
+
+Restore a snapshot
+```
+<?php
+$lxd->containers->replace('container-name', ['restore' => 'snapshot-name'] );
+```
+
+Update containers configuration.<br />Example: set limit of cpu cores to 4 and rootfs size to 5GB
+
+```
+<?php
+$newconfig = [
+    'config' => [
+        'limits.cpu' => 4
+    ],
+    'devices' => [
+        'rootfs' => [
+            'size' => '5GB'
+        ]
+    ]
+];
+$lxd->containers->update('container-name', $container);
+```
 
 #### Change state
 
@@ -181,7 +212,7 @@ Unfreeze container:
 ```
 <?php
 
-$lxd->containers->start('container-name');
+$lxd->containers->unfreeze('container-name');
 ```
 
 #### Execute a command in a container
