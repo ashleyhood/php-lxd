@@ -31,5 +31,5 @@ Wait for an operation to finish:
 ```
 <?php
 
-$lxd->operation->wait($uuid, $timeout);
+$lxd->operations->wait($uuid, $timeout);
 ```
