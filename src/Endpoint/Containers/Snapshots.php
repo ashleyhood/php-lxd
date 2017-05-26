@@ -73,6 +73,23 @@ class Snapshots extends AbstructEndpoint
     }
 
     /**
+     * Restore a snapshot of a container
+     *
+     * @param  string $name     Name of container
+     * @param  string $snapshot Name of snapshot
+     * @param  bool   $wait     Wait for operation to finish
+     * @return object
+     */
+    public function restore($name, $snapshot, $wait = false)
+    {
+        $opts['restore']  = $snapshot;
+
+        $response = $this->client->containers->replace($name, $opts, $wait);
+
+        return $response;
+    }
+
+    /**
      * Rename a snapshot
      *
      * @param string $name        Name of container
