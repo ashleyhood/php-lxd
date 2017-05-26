@@ -254,7 +254,7 @@ class Containers extends AbstructEndpoint
         if (!empty($options['source'])) {
             $opts = $this->getOptions($name, $options);
             $opts['source'] = $source;
-        } elseif ($options['empty']) {
+        } elseif (isset($options['empty']) && $options['empty']) {
             $opts = $this->getEmptyOptions($name, $options);
         } elseif (!empty($options['server'])) {
             $opts = $this->getRemoteImageOptions($name, $source, $options);
@@ -372,7 +372,7 @@ class Containers extends AbstructEndpoint
      * Example: Change container to be ephemeral (i.e. it will be deleted when stopped)
      *  $container = $lxd->containers->show('test');
      *  $container->ephemeral = true;
-     *  $lxd->containers->update('test', $container);
+     *  $lxd->containers->replace('test', $container);
      *
      * @param string $name Name of container
      * @param object $container Container to update
@@ -382,6 +382,38 @@ class Containers extends AbstructEndpoint
     public function replace($name, $container, $wait = false)
     {
         $response = $this->put($this->getEndpoint().$name, $container);
+
+        if ($wait) {
+            $response = $this->client->operations->wait($response['id']);
+        }
+
+        return $response;
+    }
+
+    /**
+     * Update the configuration of a container
+     *
+     * Example: Change containers cpu-limit and rootfs size
+     *  $newconfig = [
+     *      'config' => [
+     *          'limits.cpu' => 4
+     *      ],
+     *      'devices' => [
+     *          'rootfs' => [
+     *              'size' => '5GB'
+     *          ]
+     *      ]
+     *  ];
+     *  $lxd->containers->update('test', $newconfig);
+     *
+     * @param string $name Name of container
+     * @param array $config Options to create the container
+     * @param bool $wait Wait for operation to finish
+     * @return object
+     */
+    public function update($name, $config, $wait = false)
+    {
+        $response = $this->patch($this->getEndpoint().$name, $config);
 
         if ($wait) {
             $response = $this->client->operations->wait($response['id']);
