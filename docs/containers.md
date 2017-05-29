@@ -293,6 +293,14 @@ Create snapshot:
 $lxd->containers->snapshots->create('container-name', 'snapshot1');
 ```
 
+Restore snapshot:
+
+```
+<?php
+
+$lxd->containers->snapshots->restore('container-name', 'snapshot1');
+```
+
 Rename snapshot:
 
 ```
