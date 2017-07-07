@@ -62,7 +62,7 @@ abstract class AbstructEndpoint
      * @param array  $data           POST data to be JSON encoded.
      * @param array  $requestHeaders Request headers.
      */
-    protected function put($path, array $data = [], array $parameters = [], array $requestHeaders = [])
+    protected function put($path, $data = [], array $parameters = [], array $requestHeaders = [])
     {
         $response = $this->client->getHttpClient()->put(
             $this->buildPath($path, $parameters),
@@ -81,7 +81,7 @@ abstract class AbstructEndpoint
      * @param array  $data           POST data to be JSON encoded.
      * @param array  $requestHeaders Request headers.
      */
-    protected function patch($path, array $data = [], array $parameters = [], array $requestHeaders = [])
+    protected function patch($path, $data = [], array $parameters = [], array $requestHeaders = [])
     {
         $response = $this->client->getHttpClient()->patch(
             $this->buildPath($path, $parameters),
@@ -118,7 +118,7 @@ abstract class AbstructEndpoint
      *
      * @return null|string
      */
-    protected function createJsonBody(array $data)
+    protected function createJsonBody($data)
     {
         if (is_array($data)) {
             return (count($data) === 0) ? null : json_encode($data, empty($data) ? JSON_FORCE_OBJECT : 0);
@@ -140,7 +140,7 @@ abstract class AbstructEndpoint
         if (count($parameters) > 0) {
             $path .= '?'.http_build_query($parameters);
         }
-        
+
         return $path;
     }
 }
