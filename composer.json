@@ -1,5 +1,5 @@
 {
-    "name": "opensaucesystems/lxd",
+    "name": "dhope0000/lxd",
     "type": "library",
     "description": "PHP-based API wrapper for LXD REST API.",
     "keywords": [
@@ -16,6 +16,11 @@
             "name": "Ashley Hood",
             "email": "ashley@opensauce.systems",
             "homepage": "https://www.opensauce.systems",
+            "role": "Developer"
+        },
+        {
+            "name": "Daniel Hope",
+            "email": "dhope0000@gmail.com",
             "role": "Developer"
         }
     ],
