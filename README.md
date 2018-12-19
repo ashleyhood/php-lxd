@@ -19,7 +19,7 @@ A PHP library for interacting with the LXD REST API.
 Via Composer
 
 ``` bash
-$ composer require opensaucesystems/lxd
+$ composer require dhope0000/lxd
 ```
 
 ## Usage
