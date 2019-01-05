@@ -20,8 +20,15 @@ class Profiles extends AbstructEndpoint
     {
         $profiles = [];
 
-        foreach ($this->get($this->getEndpoint()) as $profile) {
-            $profiles[] = str_replace('/'.$this->client->getApiVersion().$this->getEndpoint(), '', $profile);
+        $config = [
+            "project"=>$this->client->getProject()
+        ];
+
+        foreach ($this->get($this->getEndpoint(), $config) as $profile) {
+            $x = str_replace('/'.$this->client->getApiVersion().$this->getEndpoint(), '', $profile);
+            $x = str_replace('?project=' . $this->client->getProject(), '', $x);
+
+            $profiles[] = $x;
         }
 
         return $profiles;
@@ -35,7 +42,11 @@ class Profiles extends AbstructEndpoint
      */
     public function info($name)
     {
-        return $this->get($this->getEndpoint().$name);
+        $config = [
+            "project"=>$this->client->getProject()
+        ];
+
+        return $this->get($this->getEndpoint().$name, $config);
     }
 
     /**
@@ -68,7 +79,11 @@ class Profiles extends AbstructEndpoint
         $profile['config']      = $config;
         $profile['devices']     = $devices;
 
-        return $this->post($this->getEndpoint(), $profile);
+        $config = [
+            "project"=>$this->client->getProject()
+        ];
+
+        return $this->post($this->getEndpoint(), $profile, $config);
     }
 
     /**
@@ -101,7 +116,11 @@ class Profiles extends AbstructEndpoint
         $profile['config']      = $config;
         $profile['devices']     = $devices;
 
-        return $this->patch($this->getEndpoint().$name, $profile);
+        $config = [
+            "project"=>$this->client->getProject()
+        ];
+
+        return $this->patch($this->getEndpoint().$name, $profile, $config);
     }
 
     /**
@@ -134,7 +153,11 @@ class Profiles extends AbstructEndpoint
         $profile['config']      = $config;
         $profile['devices']     = $devices;
 
-        return $this->put($this->getEndpoint().$name, $profile);
+        $config = [
+            "project"=>$this->client->getProject()
+        ];
+
+        return $this->put($this->getEndpoint().$name, $profile, $config);
     }
 
     /**
@@ -149,7 +172,11 @@ class Profiles extends AbstructEndpoint
         $profile                = [];
         $profile['name']        = $newName;
 
-        return $this->post($this->getEndpoint().$name, $profile);
+        $config = [
+            "project"=>$this->client->getProject()
+        ];
+
+        return $this->post($this->getEndpoint().$name, $profile, $config);
     }
 
     /**
@@ -159,6 +186,10 @@ class Profiles extends AbstructEndpoint
      */
     public function remove($name)
     {
-        return $this->delete($this->getEndpoint().$name);
+        $config = [
+            "project"=>$this->client->getProject()
+        ];
+
+        return $this->delete($this->getEndpoint().$name, $config);
     }
 }

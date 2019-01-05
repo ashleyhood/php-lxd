@@ -24,7 +24,11 @@ class Containers extends AbstructEndpoint
     {
         $containers = [];
 
-        foreach ($this->get($this->getEndpoint()) as $container) {
+        $config = [
+            "project"=>$this->client->getProject()
+        ];
+
+        foreach ($this->get($this->getEndpoint(), $config) as $container) {
             $containers[] = str_replace('/'.$this->client->getApiVersion().$this->getEndpoint(), '', $container);
         }
 
@@ -39,7 +43,11 @@ class Containers extends AbstructEndpoint
      */
     public function info($name)
     {
-        return $this->get($this->getEndpoint().$name);
+        $config = [
+            "project"=>$this->client->getProject()
+        ];
+
+        return $this->get($this->getEndpoint().$name, $config);
     }
 
     /**
@@ -50,7 +58,11 @@ class Containers extends AbstructEndpoint
      */
     public function state($name)
     {
-        return $this->get($this->getEndpoint().$name.'/state');
+        $config = [
+            "project"=>$this->client->getProject()
+        ];
+
+        return $this->get($this->getEndpoint().$name.'/state', $config);
     }
 
     /**
@@ -71,7 +83,11 @@ class Containers extends AbstructEndpoint
         $opts['force'] = $force;
         $opts['stateful'] = $stateful;
 
-        $response = $this->put($this->getEndpoint().$name.'/state', $opts);
+        $config = [
+            "project"=>$this->client->getProject()
+        ];
+
+        $response = $this->put($this->getEndpoint().$name.'/state', $opts, $config);
 
         if ($wait) {
             $response = $this->client->operations->wait($response['id']);
@@ -262,7 +278,11 @@ class Containers extends AbstructEndpoint
             $opts = $this->getLocalImageOptions($name, $source, $options);
         }
 
-        $response = $this->post($this->getEndpoint(), $opts);
+        $config = [
+            "project"=>$this->client->getProject()
+        ];
+
+        $response = $this->post($this->getEndpoint(), $opts, $config);
 
         if ($wait) {
             $response = $this->client->operations->wait($response['id']);
@@ -297,7 +317,11 @@ class Containers extends AbstructEndpoint
         $opts['source']['type'] = 'copy';
         $opts['source']['source'] = $name;
 
-        $response = $this->post($this->getEndpoint(), $opts);
+        $config = [
+            "project"=>$this->client->getProject()
+        ];
+
+        $response = $this->post($this->getEndpoint(), $opts, $config);
 
         if ($wait) {
             $response = $this->client->operations->wait($response['id']);
@@ -381,7 +405,11 @@ class Containers extends AbstructEndpoint
      */
     public function replace($name, $container, $wait = false)
     {
-        $response = $this->put($this->getEndpoint().$name, $container);
+        $config = [
+            "project"=>$this->client->getProject()
+        ];
+
+        $response = $this->put($this->getEndpoint().$name, $container, $config);
 
         if ($wait) {
             $response = $this->client->operations->wait($response['id']);
@@ -413,7 +441,11 @@ class Containers extends AbstructEndpoint
      */
     public function update($name, $config, $wait = false)
     {
-        $response = $this->patch($this->getEndpoint().$name, $config);
+        $options = [
+            "project"=>$this->client->getProject()
+        ];
+
+        $response = $this->patch($this->getEndpoint().$name, $config, $options);
 
         if ($wait) {
             $response = $this->client->operations->wait($response['id']);
@@ -433,7 +465,12 @@ class Containers extends AbstructEndpoint
     public function rename($name, $newName, $wait = false)
     {
         $opts['name'] = $newName;
-        $response = $this->post($this->getEndpoint().$name, $opts);
+
+        $config = [
+            "project"=>$this->client->getProject()
+        ];
+
+        $response = $this->post($this->getEndpoint().$name, $opts, $config);
 
         if ($wait) {
             $response = $this->client->operations->wait($response['id']);
@@ -451,7 +488,11 @@ class Containers extends AbstructEndpoint
      */
     public function remove($name, $wait = false)
     {
-        $response = $this->delete($this->getEndpoint().$name);
+        $config = [
+            "project"=>$this->client->getProject()
+        ];
+
+        $response = $this->delete($this->getEndpoint().$name, $config);
 
         if ($wait) {
             $response = $this->client->operations->wait($response['id']);
@@ -489,11 +530,14 @@ class Containers extends AbstructEndpoint
         $opts['wait-for-websocket'] = false;
         $opts['interactive'] = false;
 
-        $response = $this->post($this->getEndpoint().$name.'/exec', $opts);
+        $config = [
+            "project"=>$this->client->getProject()
+        ];
+
+        $response = $this->post($this->getEndpoint().$name.'/exec', $opts, $config);
 
         if ($wait) {
             $response = $this->client->operations->wait($response['id']);
-
             $logs = [];
             $output = $response['metadata']['output'];
             $return = $response['metadata']['return'];

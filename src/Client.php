@@ -63,12 +63,17 @@ class Client
     /**
      * Create a new lxd client Instance
      */
-    public function __construct(HttpClient $httpClient = null, $apiVersion = null, $url = null)
-    {
+    public function __construct(
+        HttpClient $httpClient = null,
+        $apiVersion = null,
+        $url = null,
+        string $projectName = "default"
+    ) {
         $this->httpClient     = $httpClient ?: HttpClientDiscovery::find();
         $this->messageFactory = MessageFactoryDiscovery::find();
         $this->apiVersion     = $apiVersion ?: '1.0';
         $this->url            = $url ?: 'https://127.0.0.1:8443';
+        $this->projectName    = $projectName;
 
         $this->addPlugin(new LxdExceptionThower());
 
@@ -207,5 +212,21 @@ class Client
                 return;
             }
         }
+    }
+    /**
+     * Set the project to use on the server
+     * @param string $projectName The project name to use
+     */
+    public function setProject(string $projectName)
+    {
+        $this->project = $projectName;
+    }
+    /**
+     * Get the project using on the client
+     * @return string The current project
+     */
+    public function getProject()
+    {
+        return $this->project;
     }
 }

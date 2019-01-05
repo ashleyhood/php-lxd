@@ -22,7 +22,11 @@ class Images extends AbstructEndpoint
     {
         $images = [];
 
-        foreach ($this->get($this->getEndpoint()) as $image) {
+        $config = [
+            "project"=>$this->client->getProject()
+        ];
+
+        foreach ($this->get($this->getEndpoint(), $config) as $image) {
             $images[] = str_replace('/'.$this->client->getApiVersion().$this->getEndpoint(), '', $image);
         }
 
@@ -39,12 +43,15 @@ class Images extends AbstructEndpoint
     public function info($fingerprint, $secret = null)
     {
         $endpoint = $this->getEndpoint().$fingerprint;
-
         if (!empty($secret)) {
             $endpoint .= '?secret='.$secret;
         }
 
-        return $this->get($endpoint);
+        $config = [
+            "project"=>$this->client->getProject()
+        ];
+
+        return $this->get($endpoint, $config);
     }
 
     /**
@@ -62,7 +69,11 @@ class Images extends AbstructEndpoint
      */
     public function create(array $options, $headers = [], $wait = false)
     {
-        $response = $this->post($this->getEndpoint(), $options, $headers);
+        $config = [
+            "project"=>$this->client->getProject()
+        ];
+
+        $response = $this->post($this->getEndpoint(), $options, $config, $headers);
 
         if ($wait) {
             $response = $this->client->operations->wait($response['id']);
@@ -231,7 +242,11 @@ class Images extends AbstructEndpoint
      */
     public function replace($fingerprint, $options, $wait = false)
     {
-        $response = $this->put($this->getEndpoint().$fingerprint, $options);
+        $config = [
+            "project"=>$this->client->getProject()
+        ];
+
+        $response = $this->put($this->getEndpoint().$fingerprint, $options, $config);
 
         if ($wait) {
             $response = $this->client->operations->wait($response['id']);
@@ -249,7 +264,11 @@ class Images extends AbstructEndpoint
      */
     public function remove($fingerprint, $wait = false)
     {
-        $response = $this->delete($this->getEndpoint().$fingerprint);
+        $config = [
+            "project"=>$this->client->getProject()
+        ];
+
+        $response = $this->delete($this->getEndpoint().$fingerprint, $config);
 
         if ($wait) {
             $response = $this->client->operations->wait($response['id']);

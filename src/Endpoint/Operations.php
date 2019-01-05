@@ -22,7 +22,11 @@ class Operations extends AbstructEndpoint
     {
         $operations = [];
 
-        foreach ($this->get($this->getEndpoint()) as $key => $operation) {
+        $config = [
+            "project"=>$this->client->getProject()
+        ];
+
+        foreach ($this->get($this->getEndpoint(), $config) as $key => $operation) {
             $operations[$key] = str_replace('/'.$this->client->getApiVersion().$this->getEndpoint(), '', $operation);
         }
 
@@ -37,7 +41,11 @@ class Operations extends AbstructEndpoint
      */
     public function info($uuid)
     {
-        return $this->get($this->getEndpoint().$uuid);
+        $config = [
+            "project"=>$this->client->getProject()
+        ];
+
+        return $this->get($this->getEndpoint().$uuid, $config);
     }
 
     /**
@@ -50,7 +58,11 @@ class Operations extends AbstructEndpoint
      */
     public function cancel($uuid)
     {
-        return $this->delete($this->getEndpoint().$uuid);
+        $config = [
+            "project"=>$this->client->getProject()
+        ];
+
+        return $this->delete($this->getEndpoint().$uuid, $config);
     }
 
     /**
@@ -62,6 +74,9 @@ class Operations extends AbstructEndpoint
      */
     public function wait($uuid, $timeout = null)
     {
+        $config = [
+            "project"=>$this->client->getProject()
+        ];
 
         $endpoint = $this->getEndpoint().$uuid.'/wait';
 
@@ -69,6 +84,6 @@ class Operations extends AbstructEndpoint
             $endpoint .= '?timeout='.$timeout;
         }
 
-        return $this->get($endpoint);
+        return $this->get($endpoint, $config);
     }
 }

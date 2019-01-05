@@ -20,7 +20,11 @@ class Aliases extends AbstructEndpoint
     {
         $aliases = [];
 
-        foreach ($this->get($this->getEndpoint()) as $alias) {
+        $config = [
+            "project"=>$this->client->getProject()
+        ];
+
+        foreach ($this->get($this->getEndpoint(), $config) as $alias) {
             $aliases[] = str_replace('/'.$this->client->getApiVersion().$this->getEndpoint(), '', $alias);
         }
 
@@ -35,7 +39,11 @@ class Aliases extends AbstructEndpoint
      */
     public function info($name)
     {
-        return $this->get($this->getEndpoint().$name);
+        $config = [
+            "project"=>$this->client->getProject()
+        ];
+
+        return $this->get($this->getEndpoint().$name, $config);
     }
 
     /**
@@ -51,7 +59,11 @@ class Aliases extends AbstructEndpoint
         $opts['name']        = $aliasName;
         $opts['description'] = $description;
 
-        return $this->post($this->getEndpoint(), $opts);
+        $config = [
+            "project"=>$this->client->getProject()
+        ];
+
+        return $this->post($this->getEndpoint(), $opts, $config);
     }
 
     /**
@@ -74,7 +86,11 @@ class Aliases extends AbstructEndpoint
         $opts['target']      = $fingerprint;
         $opts['description'] = $description;
 
-        return $this->put($this->getEndpoint().$name, $opts);
+        $config = [
+            "project"=>$this->client->getProject()
+        ];
+
+        return $this->put($this->getEndpoint().$name, $opts, $config);
     }
 
     /**
@@ -88,7 +104,11 @@ class Aliases extends AbstructEndpoint
     {
         $opts['name'] = $newName;
 
-        return $this->post($this->getEndpoint().$name, $opts);
+        $config = [
+            "project"=>$this->client->getProject()
+        ];
+
+        return $this->post($this->getEndpoint().$name, $opts, $config);
     }
 
     /**
@@ -99,6 +119,10 @@ class Aliases extends AbstructEndpoint
      */
     public function remove($name)
     {
-        return $this->delete($this->getEndpoint().$name);
+        $config = [
+            "project"=>$this->client->getProject()
+        ];
+
+        return $this->delete($this->getEndpoint().$name, $config);
     }
 }
