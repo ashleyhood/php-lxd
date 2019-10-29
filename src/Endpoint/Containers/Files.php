@@ -50,4 +50,16 @@ class Files extends AbstructEndpoint
 
         return $this->post($this->getEndpoint().$name.'/files?path='.$filepath, $data, $headers);
     }
+    
+    /**
+     * Delete a file in a container
+     *
+     * @param  string $name     Name of container
+     * @param  string $filepath Full path to a file within the container
+     * @return object
+     */
+    public function remove($name, $filepath)
+    {
+        return $this->delete($this->getEndpoint().$name.'/files?path='.$filepath);
+    }
 }
