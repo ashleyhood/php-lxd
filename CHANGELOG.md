@@ -7,6 +7,23 @@ Updates should follow the [Keep a CHANGELOG](http://keepachangelog.com/) princip
 ## [0.8.0] - 2019-10-30
 
 ### Added
+- Nothing
+
+### Deprecated
+- Nothing
+
+### Fixed
+- Composer not supporting capitals in package names
+
+### Removed
+- Dropped support for PHP5.
+
+### Security
+- Nothing
+
+## [0.8.0] - 2019-10-30
+
+### Added
 - File delete method
 
 ### Deprecated
