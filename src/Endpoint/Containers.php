@@ -492,22 +492,23 @@ class Containers extends AbstructEndpoint
         $response = $this->post($this->getEndpoint().$name.'/exec', $opts);
 
         if ($wait) {
-            $response = $this->client->operations->wait($response['id']);
+            $waitresponse = $this->client->operations->wait($response['id']);
 
-            $logs = [];
-            $output = $response['metadata']['output'];
-            $return = $response['metadata']['return'];
-            unset($response);
+            if ($record === true) {
+                $output = $waitresponse['metadata']['output'];
+                $return = $waitresponse['metadata']['return'];
+                $response = [];
 
-            foreach ($output as $log) {
-                $response['output'][] = str_replace(
-                    '/'.$this->client->getApiVersion().'/containers/'.$name.'/logs/',
-                    '',
-                    $log
-                );
+                foreach ($output as $log) {
+                    $response['output'][] = str_replace(
+                        '/'.$this->client->getApiVersion().'/containers/'.$name.'/logs/',
+                        '',
+                        $log
+                    );
+                }
+
+                $response['return'] = $return;
             }
-
-            $response['return'] = $return;
         }
 
         return $response;
