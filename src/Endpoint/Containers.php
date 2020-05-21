@@ -495,7 +495,7 @@ class Containers extends AbstructEndpoint
             $waitresponse = $this->client->operations->wait($response['id']);
 
             if ($record === true) {
-                $output = $waitresponse['metadata']['output'];
+                $output = isset($waitresponse['metadata']['output']) ? $waitresponse['metadata']['output'] : [];
                 $return = $waitresponse['metadata']['return'];
                 $response = [];
 
