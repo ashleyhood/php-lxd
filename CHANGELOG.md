@@ -4,7 +4,24 @@ All Notable changes to `php-lxd` will be documented in this file.
 
 Updates should follow the [Keep a CHANGELOG](http://keepachangelog.com/) principles.
 
-## [0.8.0] - 2019-10-30
+## [0.9.1] - 2020-05-21
+
+### Added
+- Nothing
+
+### Deprecated
+- Nothing
+
+### Fixed
+- Fix error if no output available
+
+### Removed
+- Nothing
+
+### Security
+- Nothing
+
+## [0.9.0] - 2019-10-30
 
 ### Added
 - Nothing
