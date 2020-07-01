@@ -15,6 +15,12 @@ Via Composer
 $ composer require opensaucesystems/lxd
 ```
 
+For usage of this library any httpclient library is needed. If you don't already use one in your project, please install one in advance.
+
+``` bash
+$ composer require php-http/guzzle6-adapter
+```
+
 ## Usage
 
 See the [`docs`](./docs) for more information.
