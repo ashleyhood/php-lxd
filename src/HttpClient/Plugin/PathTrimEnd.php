@@ -1,6 +1,7 @@
 <?php
 namespace Opensaucesystems\Lxd\HttpClient\Plugin;
 
+use Http\Promise\Promise;
 use Http\Client\Common\Plugin;
 use Psr\Http\Message\RequestInterface;
 
@@ -23,7 +24,7 @@ class PathTrimEnd implements Plugin
     /**
      * {@inheritdoc}
      */
-    public function handleRequest(RequestInterface $request, callable $next, callable $first)
+    public function handleRequest(RequestInterface $request, callable $next, callable $first): Promise
     {
         $trimPath = rtrim($request->getUri()->getPath(), $this->trim);
         $uri = $request->getUri()->withPath($trimPath);

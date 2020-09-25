@@ -2,6 +2,7 @@
 
 namespace Opensaucesystems\Lxd\HttpClient\Plugin;
 
+use Http\Promise\Promise;
 use Http\Client\Common\Plugin;
 use Psr\Http\Message\RequestInterface;
 
@@ -25,7 +26,7 @@ class PathPrepend implements Plugin
     /**
      * {@inheritdoc}
      */
-    public function handleRequest(RequestInterface $request, callable $next, callable $first)
+    public function handleRequest(RequestInterface $request, callable $next, callable $first): Promise
     {
         $currentPath = $request->getUri()->getPath();
         $uri = $request->getUri()->withPath($this->path.$currentPath);
