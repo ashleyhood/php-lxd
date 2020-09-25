@@ -25,7 +25,7 @@ $ composer require php-http/guzzle7-adapter
 
 ``` bash
 $ composer require php-http/guzzle6-adapter
-$ composer require opensaucesystems/lxd "^9.1"
+$ composer require opensaucesystems/lxd "^0.9"
 ```
 
 
