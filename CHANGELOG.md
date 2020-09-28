@@ -4,6 +4,23 @@ All Notable changes to `php-lxd` will be documented in this file.
 
 Updates should follow the [Keep a CHANGELOG](http://keepachangelog.com/) principles.
 
+## [0.10.0] - 2020-09-28
+
+### Added
+- Added php-http/httplug v2.2 so that guzzle7 can be used. This is a BC break as httplug-adapters v1.0 can no longer be used.
+
+### Deprecated
+- Nothing
+
+### Fixed
+- Nothing
+
+### Removed
+- Nothing
+
+### Security
+- Nothing
+
 ## [0.9.1] - 2020-05-21
 
 ### Added
