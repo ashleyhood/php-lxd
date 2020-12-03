@@ -359,12 +359,6 @@ class ImagesTest extends TestCase
         $this->assertEquals($expectedValue, $endpoint->createFromRemote($server, $options, $autoUpdate, $wait));
     }
 
-    /**
-     * Test creating
-     *
-     * @expectedException        Exception
-     * @expectedExceptionMessage Invalid protocol.  Valid choices: lxd, simplestreams
-     */
     public function testCreateFromRemoteWithIncorrectProtocol()
     {
         $server = "https://images.linuxcontainers.org:8443";
@@ -380,15 +374,12 @@ class ImagesTest extends TestCase
 
         $endpoint = $this->getEndpointMock($this->getEndpointClass());
 
+        $this->expectException(\Exception::class);
+        $this->expectExceptionMessage('Invalid protocol.  Valid choices: lxd, simplestreams');
+
         $endpoint->createFromRemote($server, $options, $autoUpdate, $wait);
     }
 
-    /**
-     * Test creating
-     *
-     * @expectedException        Exception
-     * @expectedExceptionMessage Alias or Fingerprint must be set
-     */
     public function testCreateFromRemoteWithNoAliasOrFingerprint()
     {
         $server = "https://images.linuxcontainers.org:8443";
@@ -399,6 +390,9 @@ class ImagesTest extends TestCase
         $wait = false;
 
         $endpoint = $this->getEndpointMock($this->getEndpointClass());
+
+        $this->expectException(\Exception::class);
+        $this->expectExceptionMessage('Alias or Fingerprint must be set');
 
         $endpoint->createFromRemote($server, $options, $autoUpdate, $wait);
     }
@@ -611,12 +605,11 @@ class ImagesTest extends TestCase
         $this->assertEquals([], $endpoint->remove($fingerprint));
     }
 
-    /**
-     * @expectedException Opensaucesystems\Lxd\Exception\InvalidEndpointException
-     */
     public function testGetEndpointDoesNotExist()
     {
         $endpoint = $this->getEndpointMock($this->getEndpointClass());
+
+        $this->expectException(\Opensaucesystems\Lxd\Exception\InvalidEndpointException::class);
 
         $endpoint->__get('invalidendpoint');
     }

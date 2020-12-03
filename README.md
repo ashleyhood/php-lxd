@@ -1,4 +1,4 @@
-# php-lxd !!!BETA!!!
+# php-lxd
 
 [![Latest Version on Packagist][ico-version]][link-packagist]
 [![Software License][ico-license]](LICENSE.md)
@@ -27,7 +27,6 @@ $ composer require php-http/guzzle7-adapter
 $ composer require php-http/guzzle6-adapter
 $ composer require opensaucesystems/lxd "^0.9"
 ```
-
 
 ## Usage
 

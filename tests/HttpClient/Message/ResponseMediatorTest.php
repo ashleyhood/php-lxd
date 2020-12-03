@@ -4,8 +4,9 @@ namespace Opensaucesystems\Lxd\Tests\HttpClient\Message;
 
 use Opensaucesystems\Lxd\HttpClient\Message\ResponseMediator;
 use GuzzleHttp\Psr7\Response;
+use PHPUnit\Framework\TestCase;
 
-class ResponseMediatorTest extends \PHPUnit_Framework_TestCase
+class ResponseMediatorTest extends TestCase
 {
     public function testGetContent()
     {
@@ -13,7 +14,7 @@ class ResponseMediatorTest extends \PHPUnit_Framework_TestCase
         $response = new Response(
             200,
             array('Content-Type'=>'application/json'),
-            \GuzzleHttp\Psr7\stream_for(json_encode($body))
+            \GuzzleHttp\Psr7\Utils::streamFor(json_encode($body))
         );
 
         $this->assertEquals($body['metadata'], ResponseMediator::getContent($response));
@@ -28,7 +29,7 @@ class ResponseMediatorTest extends \PHPUnit_Framework_TestCase
         $response = new Response(
             200,
             array(),
-            \GuzzleHttp\Psr7\stream_for($body)
+            \GuzzleHttp\Psr7\Utils::streamFor($body)
         );
 
         $this->assertEquals($body, ResponseMediator::getContent($response));
@@ -43,7 +44,7 @@ class ResponseMediatorTest extends \PHPUnit_Framework_TestCase
         $response = new Response(
             200,
             array('Content-Type'=>'application/json'),
-            \GuzzleHttp\Psr7\stream_for($body)
+            \GuzzleHttp\Psr7\Utils::streamFor($body)
         );
 
         $this->assertEquals($body, ResponseMediator::getContent($response));

@@ -8,3 +8,4 @@ client.key
 .c9
 .env
 .directory
+.phpunit.result.cache

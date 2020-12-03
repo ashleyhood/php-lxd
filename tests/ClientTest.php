@@ -4,10 +4,11 @@ namespace Opensaucesystems\Lxd\Tests;
 
 use Mockery;
 use Opensaucesystems\Lxd\Client;
+use PHPUnit\Framework\TestCase;
 
-class ClientTest extends \PHPUnit_Framework_TestCase
+class ClientTest extends TestCase
 {
-    protected function tearDown()
+    protected function tearDown(): void
     {
         Mockery::close();
     }
@@ -66,16 +67,13 @@ class ClientTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals($url, $client->getUrl());
     }
 
-    /**
-     * Test that endpoint doesn't exist
-     *
-     * @expectedException \Opensaucesystems\Lxd\Exception\InvalidEndpointException
-     */
     public function testInvalidEndpointException()
     {
         $httpClient = Mockery::mock('\Http\Client\HttpClient');
 
         $client = new Client($httpClient);
+
+        $this->expectException(\Opensaucesystems\Lxd\Exception\InvalidEndpointException::class);
 
         $client->nonEndpoint;
     }

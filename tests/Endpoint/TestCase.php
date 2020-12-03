@@ -2,13 +2,15 @@
 
 namespace Opensaucesystems\Lxd\Tests\Endpoint;
 
-abstract class TestCase extends \PHPUnit_Framework_TestCase
+use PHPUnit\Framework\TestCase as FrameworkTestCase;
+
+abstract class TestCase extends FrameworkTestCase
 {
     abstract protected function getEndpointClass();
 
     protected function getEndpointMock($endpointClass, $wait = false, $expectedValue = null)
     {
-        $httpClient = $this->getMock('Http\Client\HttpClient', ['sendRequest']);
+        $httpClient = $this->getMockBuilder('Http\Client\HttpClient')->onlyMethods(['sendRequest'])->getMock();
 
         $httpClient
             ->expects($this->any())
@@ -16,12 +18,12 @@ abstract class TestCase extends \PHPUnit_Framework_TestCase
 
         if ($wait) {
             $client = $this->getMockBuilder('\Opensaucesystems\Lxd\Client')
-            ->setMethods(['__get'])
+            ->onlyMethods(['__get'])
             ->setConstructorArgs([$httpClient])
             ->getMock();
-            
+
             $operations = $this->getMockBuilder('Opensaucesystems\Lxd\Endpoint\Operations')
-                ->setMethods(['wait'])
+                ->onlyMethods(['wait'])
                 ->setConstructorArgs([$client])
                 ->getMock();
 
@@ -39,7 +41,7 @@ abstract class TestCase extends \PHPUnit_Framework_TestCase
         }
 
         return $this->getMockBuilder($endpointClass)
-            ->setMethods(['get', 'post', 'patch', 'delete', 'put'])
+            ->onlyMethods(['get', 'post', 'patch', 'delete', 'put'])
             ->setConstructorArgs([$client])
             ->getMock();
     }

@@ -4,6 +4,25 @@ All Notable changes to `php-lxd` will be documented in this file.
 
 Updates should follow the [Keep a CHANGELOG](http://keepachangelog.com/) principles.
 
+## [0.11.0] - 2020-09-28
+
+### Added
+- Added PHP v8.0 support
+- Updated packages to the latest versions
+- Refactored test to work with PHPUnit v9
+
+### Deprecated
+- Nothing
+
+### Fixed
+- Nothing
+
+### Removed
+- Dropped support for PHP v7.2
+
+### Security
+- Nothing
+
 ## [0.10.0] - 2020-09-28
 
 ### Added
