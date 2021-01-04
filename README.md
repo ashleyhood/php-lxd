@@ -2,7 +2,7 @@
 
 [![Latest Version on Packagist][ico-version]][link-packagist]
 [![Software License][ico-license]](LICENSE.md)
-[![Build Status][ico-travis]][link-travis]
+[![Build Status][ico-ci]][link-ci]
 [![Total Downloads][ico-downloads]][link-downloads]
 
 A PHP library for interacting with the LXD REST API.
@@ -61,11 +61,11 @@ The MIT License (MIT). Please see [License File](LICENSE.md) for more informatio
 
 [ico-version]: https://img.shields.io/packagist/v/opensaucesystems/lxd.svg?style=flat-square
 [ico-license]: https://img.shields.io/badge/license-MIT-brightgreen.svg?style=flat-square
-[ico-travis]: https://img.shields.io/travis/ashleyhood/php-lxd/master.svg?style=flat-square
+[ico-ci]: https://github.com/ashleyhood/php-lxd/workflows/Testing/badge.svg
 [ico-downloads]: https://img.shields.io/packagist/dt/opensaucesystems/lxd.svg?style=flat-square
 
 [link-packagist]: https://packagist.org/packages/opensaucesystems/lxd
-[link-travis]: https://travis-ci.org/ashleyhood/php-lxd
+[link-ci]: https://github.com/ashleyhood/php-lxd/actions?query=workflow%3ATesting
 [link-downloads]: https://packagist.org/packages/opensaucesystems/lxd
 [link-author]: https://opensauce.systems
 [link-contributors]: ../../contributors
