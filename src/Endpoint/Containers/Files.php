@@ -32,7 +32,7 @@ class Files extends AbstructEndpoint
      * @param  string $data     Data to write to the file
      * @return object
      */
-    public function write($name, $filepath, $data, $uid = null, $gid = null, $mode = null)
+    public function write($name, $filepath, $data, $uid = null, $gid = null, $mode = null, $append = false)
     {
         $headers = [];
 
@@ -46,6 +46,10 @@ class Files extends AbstructEndpoint
 
         if (is_numeric($mode)) {
             $headers['X-LXD-mode'] = $mode;
+        }
+
+        if ($append) {
+            $headers['X-LXD-write'] = 'append';
         }
 
         return $this->post($this->getEndpoint().$name.'/files?path='.$filepath, $data, $headers);
