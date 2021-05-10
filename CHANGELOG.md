@@ -4,6 +4,23 @@ All Notable changes to `php-lxd` will be documented in this file.
 
 Updates should follow the [Keep a CHANGELOG](http://keepachangelog.com/) principles.
 
+## [0.12.0] - 2021-05-10
+
+### Added
+- Added possibility to append to files
+
+### Deprecated
+- Nothing
+
+### Fixed
+- Nothing
+
+### Removed
+- Nothing
+
+### Security
+- Nothing
+
 ## [0.11.0] - 2020-09-28
 
 ### Added
